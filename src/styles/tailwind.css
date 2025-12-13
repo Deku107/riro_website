@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-white text-slate-900 font-sans antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full border border-primary bg-primary px-6 py-2 text-sm font-medium text-white shadow-soft transition hover:bg-transparent hover:text-primary;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-full border border-slate-200 px-6 py-2 text-sm font-medium text-slate-900 transition hover:bg-slate-900 hover:text-white;
+  }
+
+  .section-padding {
+    @apply px-4 sm:px-8 lg:px-20 xl:px-28;
+  }
+
+  .section-y {
+    @apply py-16 md:py-24;
+  }
+}

@@ -1,0 +1,150 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { GALLERY_DATA } from './constants';
+import { Cloudinary } from '@cloudinary/url-gen';
+import { AdvancedImage } from '@cloudinary/react';
+
+const GallerySection = () => {
+  const navigate = useNavigate();
+
+  const handleThumbnailClick = (galleryId) => {
+    navigate(`/gallery/${galleryId}`);
+  };
+
+  const cld = new Cloudinary({ cloud: { cloudName: 'dow6mrkpm' } });
+
+  // Function to get Cloudinary image (imageId should include full path)
+  const getCloudinaryImage = (imageId) => {
+    return cld.image(imageId).format('auto').quality('auto');
+  };
+        
+
+  return (
+    <section 
+      id="gallery" 
+      className="section-y bg-white scroll-mt-20 relative py-16 lg:py-24"
+      style={{
+        backgroundImage: 'url("/src/assets/Gallary/Gallary bg.jpg")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      {/* Overlay for better text readability */}
+      <div className="absolute inset-0 bg-white/90 backdrop-blur-sm"></div>
+      
+      <div className="max-w-7xl mx-auto relative z-10 px-6 sm:px-8 lg:px-12">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-semibold mb-4">
+            Gallery
+          </h2>
+          <p className="text-lg text-muted max-w-2xl mx-auto">
+            Behind the scenes moments and production highlights from our creative journey
+          </p>
+        </div>
+        
+        {/* Aesthetic Gallery Grid - Random Big Images */}
+        <div className="relative">
+          {/* Vertical Scroll Container - Fixed Scrolling */}
+          <div 
+            className="overflow-y-scroll overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400" 
+            style={{ height: '750px', scrollBehavior: 'smooth' }}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+          >
+            <div className="columns-1 md:columns-2 lg:columns-2 xl:columns-3 gap-8 py-6 min-h-full">
+              {GALLERY_DATA.map((gallery, index) => {
+                // Random sizes for aesthetic layout
+                const sizes = [
+                  'col-span-2 row-span-2', // Large (2x2)
+                  'col-span-1 row-span-2', // Tall (1x2)
+                  'col-span-2 row-span-1', // Wide (2x1)
+                  'col-span-1 row-span-1'  // Normal (1x1)
+                ];
+                const randomSize = sizes[index % sizes.length];
+                
+                return (
+                  <div
+                    key={gallery.id}
+                    onClick={() => handleThumbnailClick(gallery.id)}
+                    className={`break-inside-avoid mb-8 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl overflow-hidden cursor-pointer transform transition-all duration-700 hover:scale-[1.03] hover:shadow-2xl hover:shadow-black/10 group relative border border-gray-200 ${
+                      index % 3 === 0 ? 'h-[28rem]' : index % 3 === 1 ? 'h-[32rem]' : 'h-[24rem]'
+                    }`}
+                  >
+                    <div className="w-full h-full relative">
+                      {/* Thumbnail Image */}
+                      <AdvancedImage 
+                        cldImg={getCloudinaryImage(gallery.thumbnail)}
+                        className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
+                        onError={(e) => {
+                          // Fallback for missing images
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                      {/* Fallback Placeholder */}
+                      <div 
+                        className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center" 
+                        style={{ display: 'none' }}
+                      >
+                        <div className="text-center">
+                          <div className="w-16 h-16 bg-gray-400 rounded-full mx-auto mb-4"></div>
+                          <p className="text-gray-600 text-sm font-medium">{gallery.title}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Animated Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60 opacity-0 group-hover:opacity-100 transition-all duration-700 flex flex-col items-center justify-center p-8">
+                        <div className="text-center text-white transform translate-y-6 group-hover:translate-y-0 transition-all duration-700">
+                          <h3 className="text-2xl font-bold mb-4">{gallery.title}</h3>
+                          <div className="flex items-center gap-3 text-base opacity-90">
+                            <span>Explore gallery</span>
+                            <svg className="w-5 h-5 transform group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Image Number Badge */}
+                      <div className="absolute top-6 right-6 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
+                        <span className="text-gray-800 text-sm font-semibold">{index + 1}</span>
+                      </div>
+                      
+                      {/* Category Badge */}
+                      <div className="absolute top-6 left-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg">
+                        {gallery.title.split(' ')[0]}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          
+          {/* Scroll Indicators */}
+          <div className="flex justify-center mt-6 gap-2">
+            {Array.from({ length: Math.ceil(GALLERY_DATA.length / 6) }).map((_, index) => (
+              <div
+                key={index}
+                className="w-2 h-2 bg-gray-300 rounded-full transition-all duration-300 hover:bg-gray-400"
+              />
+            ))}
+          </div>
+          
+          {/* Scroll Hint */}
+          <div className="text-center mt-4 sticky bottom-4">
+            <div className="inline-flex items-center gap-2 text-gray-600 text-sm bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
+              <span>Scroll to explore</span>
+              <svg className="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default GallerySection;
