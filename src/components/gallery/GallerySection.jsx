@@ -1,23 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GALLERY_DATA } from './constants';
 import { Cloudinary } from '@cloudinary/url-gen';
 import { AdvancedImage } from '@cloudinary/react';
 
 const GallerySection = () => {
   const navigate = useNavigate();
+  const [galleries, setGalleries] = useState([]);
+
+  const cld = new Cloudinary({ cloud: { cloudName: 'dow6mrkpm' } });
+
+  const getCloudinaryImage = (imageId) => {
+    return cld.image(imageId).format('auto').quality('auto');
+  };
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/galleries') // fetch real galleries from backend
+      .then(res => res.json())
+      .then(data => setGalleries(data))
+      .catch(console.error);
+  }, []);
 
   const handleThumbnailClick = (galleryId) => {
     navigate(`/gallery/${galleryId}`);
   };
-
-  const cld = new Cloudinary({ cloud: { cloudName: 'dow6mrkpm' } });
-
-  // Function to get Cloudinary image (imageId should include full path)
-  const getCloudinaryImage = (imageId) => {
-    return cld.image(imageId).format('auto').quality('auto');
-  };
-        
 
   return (
     <section 
@@ -42,7 +47,7 @@ const GallerySection = () => {
             Behind the scenes moments and production highlights from our creative journey
           </p>
         </div>
-        
+
         {/* Aesthetic Gallery Grid - Random Big Images */}
         <div className="relative">
           {/* Vertical Scroll Container - Fixed Scrolling */}
@@ -53,8 +58,7 @@ const GallerySection = () => {
             onTouchMove={(e) => e.stopPropagation()}
           >
             <div className="columns-1 md:columns-2 lg:columns-2 xl:columns-3 gap-8 py-6 min-h-full">
-              {GALLERY_DATA.map((gallery, index) => {
-                // Random sizes for aesthetic layout
+              {galleries.map((gallery, index) => {
                 const sizes = [
                   'col-span-2 row-span-2', // Large (2x2)
                   'col-span-1 row-span-2', // Tall (1x2)
@@ -62,7 +66,7 @@ const GallerySection = () => {
                   'col-span-1 row-span-1'  // Normal (1x1)
                 ];
                 const randomSize = sizes[index % sizes.length];
-                
+
                 return (
                   <div
                     key={gallery.id}
@@ -73,15 +77,15 @@ const GallerySection = () => {
                   >
                     <div className="w-full h-full relative">
                       {/* Thumbnail Image */}
-                      <AdvancedImage 
-                        cldImg={getCloudinaryImage(gallery.thumbnail)}
-                        className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
+                        <AdvancedImage 
+                          cldImg={getCloudinaryImage(gallery.thumbnail)}
+                          className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
                         onError={(e) => {
                           // Fallback for missing images
                           e.target.style.display = 'none';
                           e.target.nextSibling.style.display = 'flex';
                         }}
-                      />
+                        />
                       {/* Fallback Placeholder */}
                       <div 
                         className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center" 
@@ -124,7 +128,7 @@ const GallerySection = () => {
           
           {/* Scroll Indicators */}
           <div className="flex justify-center mt-6 gap-2">
-            {Array.from({ length: Math.ceil(GALLERY_DATA.length / 6) }).map((_, index) => (
+            {Array.from({ length: Math.ceil(galleries.length / 6) }).map((_, index) => (
               <div
                 key={index}
                 className="w-2 h-2 bg-gray-300 rounded-full transition-all duration-300 hover:bg-gray-400"

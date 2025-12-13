@@ -1,26 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { GALLERY_DATA } from '../components/gallery/constants';
 import { Cloudinary } from '@cloudinary/url-gen';
 import { AdvancedImage } from '@cloudinary/react';
 
 const GalleryDetailPage = () => {
   const { galleryId } = useParams();
   const navigate = useNavigate();
+  const [gallery, setGallery] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
-  // Initialize Cloudinary
   const cld = new Cloudinary({ cloud: { cloudName: 'dow6mrkpm' } });
+  const getCloudinaryImage = (publicId) =>
+    cld.image(publicId).format('auto').quality('auto');
 
-  // Function to get Cloudinary image (imageId should include full path)
-  const getCloudinaryImage = (imageId) => {
-    return cld.image(imageId).format('auto').quality('auto');
-  };
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/gallery/${galleryId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data || !data.length) return;
 
-  // Find the gallery data based on ID
-  const gallery = GALLERY_DATA.find(g => g.id === galleryId);
+        // Extract folder name from first image
+        const folderName = data[0].asset_folder.split('/').pop();
 
-  // Handle back to gallery
+        // Transform API response into object with title, description, and photos
+        const galleryObj = {
+          id: folderName,
+          title: folderName,
+          description: `Gallery of ${folderName}`,
+          photos: data
+            .filter((img) => img.public_id !== `thumbnail_${folderName}`) // exclude thumbnail
+            .map((img) => img.public_id),
+          thumbnail: data.find((img) => img.public_id.startsWith('thumbnail'))?.public_id || null
+        };
+
+        setGallery(galleryObj);
+      })
+      .catch(console.error);
+  }, [galleryId]);
+
   const handleBackToGallery = () => {
     // Navigate to home page first
     navigate('/', { replace: false });
@@ -49,11 +66,11 @@ const GalleryDetailPage = () => {
     if (!gallery) return;
     
     if (direction === 'next') {
-      setSelectedImageIndex((prev) => 
+      setSelectedImageIndex((prev) =>
         prev === gallery.photos.length - 1 ? 0 : prev + 1
       );
     } else {
-      setSelectedImageIndex((prev) => 
+      setSelectedImageIndex((prev) =>
         prev === 0 ? gallery.photos.length - 1 : prev - 1
       );
     }
@@ -109,17 +126,17 @@ const GalleryDetailPage = () => {
         <div className="relative">
           {/* Masonry Grid Container with Auto Aspect Ratio */}
           <div className="columns-1 sm:columns-1 lg:columns-2 xl:columns-2 gap-6 space-y-6">
-            {gallery.photos.map((photo, index) => {
+          {gallery.photos.map((photo, index) => {
               return (
-                <div
-                  key={index}
-                  onClick={() => handleImageClick(index)}
-                  className="break-inside-avoid mb-4 overflow-hidden rounded-2xl cursor-pointer transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-black/20 group relative"
-                >
+            <div
+              key={index}
+              onClick={() => handleImageClick(index)}
+              className="break-inside-avoid mb-4 overflow-hidden rounded-2xl cursor-pointer transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-black/20 group relative"
+            >
                   <div className="w-full relative">
                     {/* Image with Natural Aspect Ratio */}
-                    <AdvancedImage 
-                      cldImg={getCloudinaryImage(photo)}
+              <AdvancedImage
+                cldImg={getCloudinaryImage(photo)}
                       className="w-full h-auto object-cover transition-all duration-500 group-hover:scale-105 group-hover:brightness-110"
                       style={{ aspectRatio: 'auto' }}
                       onError={(e) => {
@@ -137,7 +154,7 @@ const GalleryDetailPage = () => {
                       <div className="text-center">
                         <div className="w-16 h-16 bg-gray-400 rounded-full mx-auto mb-3"></div>
                         <p className="text-gray-600 text-sm font-medium">Photo {index + 1}</p>
-                      </div>
+            </div>
                     </div>
                     
                     {/* Hover Overlay */}
@@ -172,7 +189,7 @@ const GalleryDetailPage = () => {
 
       {/* Lightbox */}
       {selectedImageIndex !== null && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
           onClick={closeLightbox}
         >
@@ -213,8 +230,7 @@ const GalleryDetailPage = () => {
               </svg>
             </button>
 
-            {/* Image */}
-            <AdvancedImage 
+            <AdvancedImage
               cldImg={getCloudinaryImage(gallery.photos[selectedImageIndex])}
               className="max-w-full max-h-full object-contain"
               onClick={(e) => e.stopPropagation()}
