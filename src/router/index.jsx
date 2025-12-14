@@ -12,6 +12,11 @@ import DigitalCommercialsPage from '../pages/DigitalCommercialsPage';
 import FeatureFilmsPage from '../pages/FeatureFilmsPage';
 import CorporateVideosPage from '../pages/CorporateVideosPage';
 import MusicVideosPage from '../pages/MusicVideosPage';
+import AdminLoginPage from '../pages/AdminLoginPage';
+import AdminDashboard from '../pages/AdminDashboard';
+import AdminTeamPage from '../pages/AdminTeamPage';
+import AdminServiceCardsPage from '../pages/AdminServiceCardsPage';
+import AdminServiceDetailPage from '../pages/AdminServiceDetailPage';
 
 const AppRouter = () => (
   <Routes>
@@ -31,6 +36,13 @@ const AppRouter = () => (
     {/* Separate pages */}
     <Route path="/process" element={<ProcessPage />} />
     <Route path="/team" element={<TeamPage />} />
+    {/* Admin Routes */}
+    <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+    <Route path="/admin/login" element={<AdminLoginPage />} />
+    <Route path="/admin/dashboard" element={<AdminDashboard />} />
+    <Route path="/admin/team" element={<AdminTeamPage />} />
+    <Route path="/admin/service-cards" element={<AdminServiceCardsPage />} />
+    <Route path="/admin/service/:serviceId" element={<AdminServiceDetailPage />} />
   </Routes>
 );
 

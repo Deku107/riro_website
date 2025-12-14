@@ -16,7 +16,7 @@ const stepDetails = [
     id: 1,
     title: "Idea Submission",
     headline: "Submit Your Creative Vision",
-    image: "/src/assets/process/idea-submission.jpg",
+    image: "src/assets/process/Idea Submission.png",
     description: "Share your raw concept with our team. Every great story begins with an idea, and we're here to help you shape it into something extraordinary.",
     icon: <LightbulbIcon />
   },
@@ -24,7 +24,7 @@ const stepDetails = [
     id: 2,
     title: "Creative Selection",
     headline: "Expert Curation Process",
-    image: "/src/assets/process/creative-selection.jpg",
+    image: "src/assets/process/Creative Selection.png",
     description: "Our creative experts review and select promising concepts. We look for originality, market potential, and storytelling excellence.",
     icon: <PaletteIcon />
   },
@@ -32,7 +32,7 @@ const stepDetails = [
     id: 3,
     title: "Agreement Signing",
     headline: "Professional Partnership",
-    image: "/src/assets/process/agreement-signing.jpg",
+    image: "src/assets/process/Agreement.png",
     description: "Our legal team ensures fair agreements that protect both creators and the platform. Clear terms, transparent process.",
     icon: <FileSignatureIcon />
   },
@@ -40,7 +40,7 @@ const stepDetails = [
     id: 4,
     title: "Remuneration Paid",
     headline: "Financial Support",
-    image: "/src/assets/process/remuneration.jpg",
+    image: "src/assets/process/Remuneration.png",
     description: "Our accounts team processes payments efficiently. No more waiting for funds - get the financial support you need when you need it.",
     icon: <WalletIcon />
   },
@@ -48,7 +48,7 @@ const stepDetails = [
     id: 5,
     title: "Production",
     headline: "From Concept to Reality",
-    image: "/src/assets/process/production.jpg",
+    image: "src/assets/process/Production.png",
     description: "Complete production support from pre-production planning through post-production. Professional equipment, experienced crew.",
     icon: <ClapperboardIcon />
   },
@@ -56,7 +56,7 @@ const stepDetails = [
     id: 6,
     title: "Release",
     headline: "Distribution Excellence",
-    image: "/src/assets/process/release.jpg",
+    image: "src/assets/process/Guaranteed Release.png",
     description: "Our distribution team ensures your content reaches the right audience. Strategic release planning and multi-platform distribution.",
     icon: <RocketIcon />
   },
@@ -64,7 +64,7 @@ const stepDetails = [
     id: 7,
     title: "Festival Submissions",
     headline: "Global Recognition",
-    image: "/src/assets/process/festival.jpg",
+    image: "src/assets/process/Festival Submissions.png",
     description: "Marketing and PR support for festival submissions. We help your work gain international recognition and awards.",
     icon: <TrophyIcon />
   }

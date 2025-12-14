@@ -1,6 +1,6 @@
 export default function PersonCard5() {
   return (
-    <div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-8 max-w-5xl mx-auto bg-white rounded-3xl transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+    <div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-8 max-w-5xl mx-auto rounded-3xl transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl" style={{backgroundColor: '#f2f7f5'}}>
       {/* Profile Card */}
       <div className="flex-shrink-0 w-full lg:w-64">
         <div className="bg-gradient-to-br from-pink-400 to-pink-500 rounded-3xl shadow-lg h-80 lg:h-80 flex flex-col overflow-hidden p-2 transform transition-all duration-300 hover:shadow-xl">
