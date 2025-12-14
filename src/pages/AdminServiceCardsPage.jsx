@@ -8,6 +8,7 @@ const AdminServiceCardsPage = () => {
   const [serviceCards] = useState(SERVICES_DATA);
   const [editingCard, setEditingCard] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isAdminLoggedIn');
@@ -40,6 +41,39 @@ const AdminServiceCardsPage = () => {
       active: true
     });
     setIsAddingNew(true);
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      try {
+        const response = await fetch('http://localhost:5001/api/team/upload', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          setEditingCard(prev => ({
+            ...prev,
+            image: result.imageUrl
+          }));
+        } else {
+          console.error('Upload failed:', result.error);
+          alert('Upload failed: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Upload error: ' + error.message);
+      } finally {
+        setIsUploading(false);
+      }
+    }
   };
 
   const handleSaveCard = () => {
@@ -214,7 +248,30 @@ const AdminServiceCardsPage = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Thumbnail Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={isUploading}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+                />
+                {isUploading && (
+                  <div className="mt-2 text-sm text-blue-600">Uploading image...</div>
+                )}
+                {editingCard.image && (
+                  <div className="mt-2">
+                    <img 
+                      src={editingCard.image} 
+                      alt="Preview" 
+                      className="h-20 w-20 object-cover rounded"
+                    />
+                  </div>
+                )}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Image URL (alternative)</label>
                 <input
                   type="text"
                   value={editingCard.image}

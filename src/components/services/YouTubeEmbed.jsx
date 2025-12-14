@@ -1,5 +1,21 @@
 import React, { useState } from 'react';
 
+// Helper function to add cache-busting to Cloudinary URLs
+const getCacheBustedUrl = (imageUrl) => {
+  if (!imageUrl || !imageUrl.includes('cloudinary.com')) {
+    return imageUrl;
+  }
+  
+  // If URL already has cache-busting parameter, return as is
+  if (imageUrl.includes('?t=')) {
+    return imageUrl;
+  }
+  
+  // Add timestamp for cache-busting
+  const timestamp = Date.now();
+  return `${imageUrl}?t=${timestamp}`;
+};
+
 const YouTubeEmbed = ({ embedUrl, thumbnailUrl, className = '' }) => {
   const [isHovered, setIsHovered] = useState(false);
   const hasThumbnail = !!thumbnailUrl;
@@ -26,7 +42,7 @@ const YouTubeEmbed = ({ embedUrl, thumbnailUrl, className = '' }) => {
       {/* Thumbnail Image - Only if thumbnail exists */}
       {hasThumbnail && (
         <img
-          src={thumbnailUrl}
+          src={getCacheBustedUrl(thumbnailUrl)}
           alt="Video thumbnail"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
             isHovered ? 'opacity-0' : 'opacity-100'

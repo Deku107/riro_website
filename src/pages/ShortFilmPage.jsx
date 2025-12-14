@@ -1,12 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import YouTubeEmbed from '../components/services/YouTubeEmbed';
-import { MOCK_PROJECTS } from '../components/services/constants';
 
 const ShortFilmPage = () => {
   const navigate = useNavigate();
   const [expandedProjects, setExpandedProjects] = useState(new Set());
-  const projects = MOCK_PROJECTS['s1'] || [];
+  const [projects, setProjects] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch projects data from backend
+    fetch('http://localhost:5000/api/projects')
+      .then(res => res.json())
+      .then(data => {
+        setProjects(data['s1'] || []); // s1 is the service ID for short films
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch projects:', err);
+        setProjects([]);
+        setIsLoading(false);
+      });
+  }, []);
 
   const handleProjectClick = (projectId) => {
     setExpandedProjects(prev => {
@@ -55,7 +70,11 @@ const ShortFilmPage = () => {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {projects.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-20">
+            <p className="text-white/50 text-lg">Loading projects...</p>
+          </div>
+        ) : projects.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-white/50 text-lg">Short films coming soon...</p>
           </div>

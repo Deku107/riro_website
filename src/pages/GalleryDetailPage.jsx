@@ -8,16 +8,21 @@ const GalleryDetailPage = () => {
   const navigate = useNavigate();
   const [gallery, setGallery] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const cld = new Cloudinary({ cloud: { cloudName: 'dow6mrkpm' } });
   const getCloudinaryImage = (publicId) =>
     cld.image(publicId).format('auto').quality('auto');
 
   useEffect(() => {
+    setIsLoading(true);
     fetch(`http://localhost:5000/api/gallery/${galleryId}`)
       .then((res) => res.json())
       .then((data) => {
-        if (!data || !data.length) return;
+        if (!data || !data.length) {
+          setIsLoading(false);
+          return;
+        }
 
         // Extract folder name from first image
         const folderName = data[0].asset_folder.split('/').pop();
@@ -34,8 +39,12 @@ const GalleryDetailPage = () => {
         };
 
         setGallery(galleryObj);
+        setIsLoading(false);
       })
-      .catch(console.error);
+      .catch((error) => {
+        console.error(error);
+        setIsLoading(false);
+      });
   }, [galleryId]);
 
   const handleBackToGallery = () => {
@@ -75,6 +84,20 @@ const GalleryDetailPage = () => {
       );
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-purple-600 rounded-full animate-spin animation-delay-150"></div>
+          </div>
+          <p className="mt-6 text-gray-600 font-medium animate-pulse">Loading gallery...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!gallery) {
     return (
@@ -124,8 +147,15 @@ const GalleryDetailPage = () => {
 
         {/* Photo Grid Collage Design */}
         <div className="relative">
-          {/* Masonry Grid Container with Auto Aspect Ratio */}
-          <div className="columns-1 sm:columns-1 lg:columns-2 xl:columns-2 gap-6 space-y-6">
+          {/* Vertical Scroll Container - Fixed Scrolling */}
+          <div 
+            className="overflow-y-scroll overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400" 
+            style={{ height: '750px', scrollBehavior: 'smooth' }}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+          >
+            {/* Masonry Grid Container with Auto Aspect Ratio */}
+            <div className="columns-1 sm:columns-1 lg:columns-2 xl:columns-2 gap-6 space-y-6 py-6 min-h-full">
           {gallery.photos.map((photo, index) => {
               return (
             <div
@@ -183,6 +213,7 @@ const GalleryDetailPage = () => {
                 </div>
               );
             })}
+            </div>
           </div>
         </div>
       </div>

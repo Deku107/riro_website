@@ -10,6 +10,7 @@ const AdminServiceDetailPage = () => {
   const [projects, setProjects] = useState([]);
   const [editingProject, setEditingProject] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isAdminLoggedIn');
@@ -26,8 +27,19 @@ const AdminServiceDetailPage = () => {
     }
 
     setService(foundService);
-    setProjects(MOCK_PROJECTS[serviceId] || []);
-    setIsLoading(false);
+    
+    // Fetch projects data from backend
+    fetch('http://localhost:5001/api/projects')
+      .then(res => res.json())
+      .then(data => {
+        setProjects(data[serviceId] || []);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch projects:', err);
+        setProjects([]);
+        setIsLoading(false);
+      });
   }, [serviceId, navigate]);
 
   const handleBackToServices = () => {
@@ -55,20 +67,78 @@ const AdminServiceDetailPage = () => {
     setIsAddingNew(false);
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      try {
+        const response = await fetch('http://localhost:5001/api/team/upload', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          setEditingProject(prev => ({
+            ...prev,
+            thumbnailUrl: result.imageUrl
+          }));
+        } else {
+          console.error('Upload failed:', result.error);
+          alert('Upload failed: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Upload error: ' + error.message);
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
+  const saveToBackend = (updatedProjects) => {
+    // Get current projects data first
+    fetch('http://localhost:5001/api/projects')
+      .then(res => res.json())
+      .then(allProjects => {
+        const projectsData = {
+          ...allProjects,
+          [serviceId]: updatedProjects
+        };
+        
+        return fetch('http://localhost:5001/api/projects/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(projectsData)
+        });
+      })
+      .catch(err => {
+        console.error('Failed to save projects:', err);
+      });
+  };
+
   const handleSaveProject = () => {
+    let updatedProjects;
+    
     if (isAddingNew) {
-      const newProjects = [...projects, editingProject];
-      setProjects(newProjects);
-      // In real app, save to database
+      updatedProjects = [...projects, editingProject];
+      setProjects(updatedProjects);
       console.log('Adding new project:', editingProject);
     } else {
-      const updatedProjects = projects.map(p => 
+      updatedProjects = projects.map(p => 
         p.id === editingProject.id ? editingProject : p
       );
       setProjects(updatedProjects);
-      // In real app, save to database
       console.log('Updating project:', editingProject);
     }
+    
+    // Save to backend
+    saveToBackend(updatedProjects);
+    
     setEditingProject(null);
     setIsAddingNew(false);
   };
@@ -77,8 +147,10 @@ const AdminServiceDetailPage = () => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       const updatedProjects = projects.filter(p => p.id !== projectId);
       setProjects(updatedProjects);
-      // In real app, save to database
       console.log('Deleting project:', projectId);
+      
+      // Save to backend
+      saveToBackend(updatedProjects);
     }
   };
 
@@ -295,7 +367,30 @@ const AdminServiceDetailPage = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Thumbnail URL</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Thumbnail Image</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+                  />
+                  {isUploading && (
+                    <div className="mt-2 text-sm text-blue-600">Uploading image...</div>
+                  )}
+                  {editingProject.thumbnailUrl && (
+                    <div className="mt-2">
+                      <img 
+                        src={editingProject.thumbnailUrl} 
+                        alt="Preview" 
+                        className="h-20 w-20 object-cover rounded"
+                      />
+                    </div>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Thumbnail URL (alternative)</label>
                   <input
                     type="text"
                     value={editingProject.thumbnailUrl}

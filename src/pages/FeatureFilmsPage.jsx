@@ -1,10 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MOCK_PROJECTS } from '../components/services/constants';
 
 const FeatureFilmsPage = () => {
   const navigate = useNavigate();
-  const projects = MOCK_PROJECTS['s3'] || [];
+  const [projects, setProjects] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch projects data from backend
+    fetch('http://localhost:5000/api/projects')
+      .then(res => res.json())
+      .then(data => {
+        setProjects(data['s3'] || []); // s3 is the service ID for feature films
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch projects:', err);
+        setProjects([]);
+        setIsLoading(false);
+      });
+  }, []);
 
   const handleBackToServices = () => {
     navigate('/');

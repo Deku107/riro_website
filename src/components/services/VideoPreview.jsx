@@ -1,5 +1,21 @@
 import React, { useRef, useState } from 'react';
 
+// Helper function to add cache-busting to Cloudinary URLs
+const getCacheBustedUrl = (imageUrl) => {
+  if (!imageUrl || !imageUrl.includes('cloudinary.com')) {
+    return imageUrl;
+  }
+  
+  // If URL already has cache-busting parameter, return as is
+  if (imageUrl.includes('?t=')) {
+    return imageUrl;
+  }
+  
+  // Add timestamp for cache-busting
+  const timestamp = Date.now();
+  return `${imageUrl}?t=${timestamp}`;
+};
+
 const VideoPreview = ({ thumbnailUrl, videoUrl, className = '', onClick }) => {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -50,7 +66,7 @@ const VideoPreview = ({ thumbnailUrl, videoUrl, className = '', onClick }) => {
     >
       {/* Thumbnail Image - visible when not playing */}
       <img
-        src={thumbnailUrl}
+        src={getCacheBustedUrl(thumbnailUrl)}
         alt="Thumbnail"
         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
           isPlaying ? 'opacity-0' : 'opacity-100'

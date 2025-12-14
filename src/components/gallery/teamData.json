@@ -1,20 +1,40 @@
 {
   "coreTeam": [
     {
-      "id": 1,
+      "id": 2,
       "name": "Anjali Verma",
-      "role": "Producer",
-      "description": "Anjali Verma is a pivotal force at Anjpix Collectives LLP, combining a sharp strategic mind—honed by an MBA in HR and an M.Sc. in Organic Chemistry—with deep creative passion. As Producer, she is integral to the entire pipeline: from selecting the most promising scripts and managing budgeting to overseeing the seamless execution of the final film. Her unique expertise ensures every project is both creatively ambitious and financially sound. Anjali proudly continues her work alongside her husband, Ritesh Verma, celebrated for his directional contributions to numerous hit Hindi movies.",
-      "imageAlt": "Anjali Verma - Producer",
-      "bgColor": "bg-blue-100"
+      "role": "Director",
+      "description": "Anjali Verma is a pivotal force at Anjpix Collectives LLP, combining a sharp strategic mind—honed by an MBA in HR and an M.Sc. in Organic Chemistry—with deep creative passion.\nAs Producer, she is integral to the entire pipeline: from selecting the most promising scripts and managing budgeting to overseeing the seamless execution of the final film. Her unique expertise ensures every project is both creatively ambitious and financially sound.\nAnjali proudly continues her work alongside her husband, Ritesh Verma, celebrated for his directional contributions to numerous hit Hindi movies.\n",
+      "imageAlt": "Anjali Verma",
+      "bgColor": "bg-green-100",
+      "type": "core",
+      "image": "https://res.cloudinary.com/dow6mrkpm/image/upload/v1765742870/team/team-1765742866687.png?t=1765742866687"
     },
     {
-      "id": 2,
+      "id": 1,
       "name": "Ritesh Verma",
-      "role": "Director",
-      "description": "Ritesh Verma is a celebrated director known for his contributions to numerous hit Hindi movies. With a keen eye for storytelling and a deep understanding of cinematic techniques, he brings creative visions to life on screen.",
-      "imageAlt": "Ritesh Verma - Director",
-      "bgColor": "bg-green-100"
+      "role": "Producer & Founder",
+      "description": "Ritesh Verma, the visionary Founder of Riro Talehouse (powered by Anjpix Collectives LLP), is a two-decade architect of magic in the Hindi Film Industry's direction department, having shaped the success of countless celebrated box-office hits.\n\n\nHis core mission is a dramatic one: to shatter the constraints of budget and resource limitations that stifle brilliant cinematic concepts. Riro Talehouse is the dedicated stage for untapped talent, providing the essential catalyst to transform powerful, untold stories into breathtaking cinematic realities\n",
+      "imageAlt": "Ritesh Verma",
+      "bgColor": "bg-blue-100",
+      "type": "core",
+      "image": "https://res.cloudinary.com/dow6mrkpm/image/upload/v1765743074/team/team-1765743070747.jpg?t=1765743070747",
+      "imageZoom": 1
+    },
+    {
+      "id": 5,
+      "name": "KK Shukla",
+      "role": "Production Manager",
+      "description": "KK Shukla oversees all aspects of production management, ensuring smooth coordination between departments and timely delivery of projects while maintaining quality standards.",
+      "imageAlt": "KK Shukla",
+      "bgColor": "bg-red-100",
+      "type": "core",
+      "image": "https://res.cloudinary.com/dow6mrkpm/image/upload/v1765744146/team/team-1765744142732.jpg?t=1765744142732",
+      "imageZoom": 0.8,
+      "imagePosition": {
+        "x": 50,
+        "y": 50
+      }
     },
     {
       "id": 3,
@@ -29,16 +49,25 @@
       "name": "Dheeraj",
       "role": "Editor & Colourist",
       "description": "Most editors cut footage. Dheeraj cuts to the bone—finding the emotional throughline buried under all your takes and making it hit exactly how it's supposed to. He's obsessively story-driven, the kind of editor who won't let a frame exist unless it earns its place in the narrative.",
-      "imageAlt": "Dheeraj - Editor & Colourist",
-      "bgColor": "bg-yellow-100"
+      "imageAlt": "Dheeraj",
+      "bgColor": "bg-yellow-100",
+      "type": "core",
+      "image": "https://res.cloudinary.com/dow6mrkpm/image/upload/v1765744281/team/team-1765744277519.jpg?t=1765744277519",
+      "imageZoom": 1,
+      "imagePosition": {
+        "x": 50,
+        "y": 50
+      }
     },
     {
-      "id": 5,
-      "name": "KK Shukla",
-      "role": "Production Manager",
-      "description": "KK Shukla oversees all aspects of production management, ensuring smooth coordination between departments and timely delivery of projects while maintaining quality standards.",
-      "imageAlt": "KK Shukla - Production Manager",
-      "bgColor": "bg-red-100"
+      "id": 6,
+      "name": "Mihir",
+      "role": "xyz",
+      "description": "",
+      "imageAlt": "Mihir",
+      "image": "https://res.cloudinary.com/dow6mrkpm/image/upload/v1765737605/xmuppajyfrq9xsqzy9ok.jpg?t=1765737601238",
+      "bgColor": "bg-blue-100",
+      "type": "core"
     }
   ],
   "collaborators": {
@@ -51,11 +80,12 @@
         "imageAlt": "Sanjeev - Director"
       },
       {
-        "id": 2,
+        "id": 4,
         "name": "Abhay",
         "role": "Director",
-        "description": "Creative director known for innovative approaches to filmmaking and visual composition.",
-        "imageAlt": "Abhay - Director"
+        "description": "Experienced director ",
+        "imageAlt": "",
+        "type": "director"
       },
       {
         "id": 3,
@@ -88,12 +118,5 @@
         "imageAlt": "Aniket - Director of Photography"
       }
     ]
-  },
-  "heroStats": [
-    {
-      "title": "Creativity",
-      "value": "5 Years",
-      "subtitle": "Production"
-    }
-  ]
+  }
 }

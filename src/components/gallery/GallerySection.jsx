@@ -6,6 +6,7 @@ import { AdvancedImage } from '@cloudinary/react';
 const GallerySection = () => {
   const navigate = useNavigate();
   const [galleries, setGalleries] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const cld = new Cloudinary({ cloud: { cloudName: 'dow6mrkpm' } });
 
@@ -14,10 +15,17 @@ const GallerySection = () => {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     fetch('http://localhost:5000/api/galleries') // fetch real galleries from backend
       .then(res => res.json())
-      .then(data => setGalleries(data))
-      .catch(console.error);
+      .then(data => {
+        setGalleries(data);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error(error);
+        setIsLoading(false);
+      });
   }, []);
 
   const handleThumbnailClick = (galleryId) => {
@@ -50,13 +58,23 @@ const GallerySection = () => {
 
         {/* Aesthetic Gallery Grid - Random Big Images */}
         <div className="relative">
-          {/* Vertical Scroll Container - Fixed Scrolling */}
-          <div 
-            className="overflow-y-scroll overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400" 
-            style={{ height: '750px', scrollBehavior: 'smooth' }}
-            onWheel={(e) => e.stopPropagation()}
-            onTouchMove={(e) => e.stopPropagation()}
-          >
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-32">
+              <div className="relative">
+                <div className="w-16 h-16 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-purple-600 rounded-full animate-spin animation-delay-150"></div>
+              </div>
+              <p className="mt-6 text-gray-600 font-medium animate-pulse">Loading galleries...</p>
+            </div>
+          ) : (
+            <>
+              {/* Vertical Scroll Container - Fixed Scrolling */}
+              <div 
+                className="overflow-y-scroll overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400" 
+                style={{ height: '750px', scrollBehavior: 'smooth' }}
+                onWheel={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+              >
             <div className="columns-1 md:columns-2 lg:columns-2 xl:columns-3 gap-8 py-6 min-h-full">
               {galleries.map((gallery, index) => {
                 const sizes = [
@@ -126,6 +144,17 @@ const GallerySection = () => {
             </div>
           </div>
           
+          {galleries.length === 0 && !isLoading && (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-6 flex items-center justify-center">
+                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <p className="text-gray-600 text-lg">No galleries available</p>
+            </div>
+          )}
+          
           {/* Scroll Indicators */}
           <div className="flex justify-center mt-6 gap-2">
             {Array.from({ length: Math.ceil(galleries.length / 6) }).map((_, index) => (
@@ -145,6 +174,8 @@ const GallerySection = () => {
               </svg>
             </div>
           </div>
+        </>
+          )}
         </div>
       </div>
     </section>
