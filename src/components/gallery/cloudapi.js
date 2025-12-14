@@ -1,6 +1,7 @@
 import express from "express";
 import cloudinary from "cloudinary";
 import cors from "cors";
+import path from 'path';
 
 const app = express();
 
@@ -90,6 +91,28 @@ app.get("/api/gallery/:folder", async (req, res) => {
   }
 });
 
+const filePath = path.join(process.cwd(), 'teamData.json');
+app.get('/api/team', (req, res) => {
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    res.json(JSON.parse(data));
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to read team data' });
+  }
+});
+
+/* ✅ Save team data */
+app.post('/api/team/save', (req, res) => {
+  try {
+    fs.writeFileSync(
+      filePath,
+      JSON.stringify(req.body, null, 2)
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save team data' });
+  }
+});
 
 
 

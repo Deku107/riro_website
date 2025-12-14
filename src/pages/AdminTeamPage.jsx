@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { coreTeam, collaborators } from '../data/teamData';
 
 const AdminTeamPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('core');
   const [editingMember, setEditingMember] = useState(null);
+
+
+  const [coreTeamMembers, setCoreTeamMembers] = useState(coreTeam);
+  const [collaboratorMembers, setCollaboratorMembers] = useState({
+  directors: [],
+  dop: []
+});
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isAdminLoggedIn');
@@ -17,6 +23,24 @@ const AdminTeamPage = () => {
     setIsLoading(false);
   }, [navigate]);
 
+
+  useEffect(() => {
+  fetch('http://localhost:5000/api/team')
+    .then(res => res.json())
+    .then(data => {
+      setCoreTeamMembers(data.coreTeam);
+      setCollaboratorMembers(data.collaborators);
+      setIsLoading(false);
+    });
+}, []);
+
+useEffect(() => {
+  if (!isLoading) {
+    saveToBackend(coreTeamMembers, collaboratorMembers);
+  }
+}, [coreTeamMembers, collaboratorMembers]);
+
+
   const handleBackToDashboard = () => {
     navigate('/admin/dashboard');
   };
@@ -25,11 +49,51 @@ const AdminTeamPage = () => {
     setEditingMember({ ...member, type });
   };
 
-  const handleSaveMember = () => {
-    // In a real application, this would save to a database
-    console.log('Saving member:', editingMember);
-    setEditingMember(null);
-  };
+
+
+  const saveToBackend = (core, collaborators) => {
+  fetch('http://localhost:5000/api/team/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      coreTeam: core,
+      collaborators
+    })
+  });
+};
+
+
+const handleSaveMember = () => {
+  if (!editingMember) return;
+
+  if (editingMember.type === 'core') {
+    setCoreTeamMembers(prev =>
+      prev.map(m => m.id === editingMember.id ? editingMember : m)
+    );
+  }
+
+  if (editingMember.type === 'director') {
+    setCollaboratorMembers(prev => ({
+      ...prev,
+      directors: prev.directors.map(m =>
+        m.id === editingMember.id ? editingMember : m
+      )
+    }));
+  }
+
+  if (editingMember.type === 'dop') {
+    setCollaboratorMembers(prev => ({
+      ...prev,
+      dop: prev.dop.map(m =>
+        m.id === editingMember.id ? editingMember : m
+      )
+    }));
+  }
+
+  setEditingMember(null);
+};
+
+
 
   const handleDeleteMember = (memberId, type) => {
     if (window.confirm('Are you sure you want to delete this member?')) {
@@ -77,7 +141,7 @@ const AdminTeamPage = () => {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Core Team ({coreTeam.length})
+              Core Team ({coreTeamMembers.length})
             </button>
             <button
               onClick={() => setActiveTab('collaborators')}
@@ -87,7 +151,7 @@ const AdminTeamPage = () => {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Collaborators ({collaborators.directors.length + collaborators.dop.length})
+              Collaborators ({collaboratorMembers.directors.length + collaboratorMembers.dop.length})
             </button>
           </nav>
         </div>
@@ -105,7 +169,7 @@ const AdminTeamPage = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {coreTeam.map((member) => (
+              {coreTeamMembers.map((member) => (
                 <div key={member.id} className="bg-white rounded-lg shadow p-6">
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="text-lg font-medium text-gray-900">{member.name}</h3>
@@ -144,7 +208,7 @@ const AdminTeamPage = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {collaborators.directors.map((director) => (
+                {collaboratorMembers.directors.map((director) => (
                   <div key={director.id} className="bg-white rounded-lg shadow p-6">
                     <div className="flex justify-between items-start mb-4">
                       <h3 className="text-lg font-medium text-gray-900">{director.name}</h3>
@@ -180,7 +244,7 @@ const AdminTeamPage = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {collaborators.dop.map((dop) => (
+                {collaboratorMembers.dop.map((dop) => (
                   <div key={dop.id} className="bg-white rounded-lg shadow p-6">
                     <div className="flex justify-between items-start mb-4">
                       <h3 className="text-lg font-medium text-gray-900">{dop.name}</h3>
