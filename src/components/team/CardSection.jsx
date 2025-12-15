@@ -60,11 +60,13 @@ const CardSection = () => {
               const cardComponents = [PersonCard2, PersonCard, PersonCard3, PersonCard4, PersonCard5, PersonCard6];
               const PersonCardComponent = cardComponents[index % cardComponents.length];
               
-              const alignment = index % 2 === 0 ? 'justify-start pl-[20%]' : 'justify-end pr-[20%]';
+              const alignment = index % 2 === 0 
+                ? 'justify-center lg:justify-start lg:pl-[20%]' 
+                : 'justify-center lg:justify-end lg:pr-[20%]';
               const delay = index * 200;
               
               return (
-                <div key={member.id} className={`flex ${alignment} opacity-0 animate-fade-in-up`} style={{animationDelay: `${delay}ms`}}>
+                <div key={member.id} className={`flex flex-col lg:flex-row items-center ${alignment} opacity-0 animate-fade-in-up`} style={{animationDelay: `${delay}ms`}}>
                   <PersonCardComponent member={member} />
                 </div>
               );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import YouTubeEmbed from '../components/services/YouTubeEmbed';
+import { scrollToSectionWithRetry } from '../utils/scrollToSection';
 
 const ShortFilmPage = () => {
   const navigate = useNavigate();
@@ -37,13 +38,10 @@ const ShortFilmPage = () => {
 
   const handleBackToServices = () => {
     navigate('/');
-    // Scroll to services section after navigation
+    // Use enhanced scrollToSectionWithRetry for reliable mobile navigation
     setTimeout(() => {
-      const servicesSection = document.getElementById('services');
-      if (servicesSection) {
-        servicesSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+      scrollToSectionWithRetry('services');
+    }, 500); // Increased timeout for better reliability
   };
 
   return (

@@ -94,7 +94,7 @@ const ApproachCard = ({ item, index }) => {
         </div>
       </div>
 
-      <h3 className={`text-2xl md:text-3xl font-bold mb-4 transition-colors duration-300 ${item.borderColor.replace('border-', 'text-').replace('200', '800')} group-hover:${item.borderColor.replace('border-', 'text-').replace('200', '900')}`}>
+      <h3 className={`text-2xl md:text-3xl font-bold mb-4 transition-colors duration-300 text-[#00473e] group-hover:text-[#003d3a]`}>
         {item.title}
       </h3>
       

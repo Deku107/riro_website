@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Cloudinary } from '@cloudinary/url-gen';
 import { AdvancedImage } from '@cloudinary/react';
+import { scrollToSectionWithRetry } from '../utils/scrollToSection';
 
 const GalleryDetailPage = () => {
   const { galleryId } = useParams();
@@ -51,13 +52,10 @@ const GalleryDetailPage = () => {
     // Navigate to home page first
     navigate('/', { replace: false });
     
-    // Then scroll to gallery section after a short delay
+    // Use enhanced scrollToSectionWithRetry for reliable mobile navigation
     setTimeout(() => {
-      const gallerySection = document.getElementById('gallery');
-      if (gallerySection) {
-        gallerySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 100);
+      scrollToSectionWithRetry('gallery');
+    }, 500);
   };
 
   // Handle image click for lightbox
