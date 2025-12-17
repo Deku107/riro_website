@@ -5,7 +5,8 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Use instant scroll to avoid conflicts with Lenis and reduce lag
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }, [pathname]);
 
   return null;

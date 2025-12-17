@@ -71,26 +71,26 @@ const ApproachCard = ({ item, index }) => {
   return (
     <div 
       ref={cardRef}
-      className={`group relative bg-[#f2f7f5] rounded-[2rem] p-8 transition-all duration-700 ease-out transform ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 scale-95'
-      } hover:-translate-y-2 hover:shadow-2xl`}
+      className={`group relative bg-[#f2f7f5] rounded-[2rem] p-8 transition-all duration-300 ease-out transform ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 scale-95'
+      } hover:-translate-y-1 hover:shadow-xl`}
       style={{ 
-        transitionDelay: `${index * 150}ms`,
+        transitionDelay: `${index * 75}ms`,
         boxShadow: isVisible ? '0 10px 30px rgba(0,0,0,0.1)' : 'none'
       }}
     >
       {/* Animated Gradient Line */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#ffa8ba] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out rounded-b-[2rem]"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#ffa8ba] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out rounded-b-[2rem]"></div>
       
       <div className="flex justify-between items-start mb-6">
         {/* Large Icon Container */}
-        <div className="w-16 h-16 bg-[#fa5246]/10 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:shadow-lg group-hover:bg-[#fa5246]">
-          <Icon className="w-8 h-8 text-[#fa5246] transition-colors duration-500 group-hover:text-white" />
+        <div className="w-16 h-16 bg-[#fa5246]/10 rounded-xl flex items-center justify-center transition-all duration-250 group-hover:scale-105 group-hover:shadow-md group-hover:bg-[#fa5246]">
+          <Icon className="w-8 h-8 text-[#fa5246] transition-colors duration-250 group-hover:text-white" />
         </div>
         
         {/* Circular Arrow Button */}
-        <div className="w-12 h-12 rounded-full bg-[#fa5246]/10 flex items-center justify-center transition-all duration-500 group-hover:rotate-45 group-hover:scale-110 group-hover:bg-[#00473e]">
-          <ArrowUpRight className="w-5 h-5 text-[#fa5246] transition-colors duration-500 group-hover:text-white" />
+        <div className="w-12 h-12 rounded-full bg-[#fa5246]/10 flex items-center justify-center transition-all duration-250 group-hover:rotate-12 group-hover:scale-105 group-hover:bg-[#00473e]">
+          <ArrowUpRight className="w-5 h-5 text-[#fa5246] transition-colors duration-250 group-hover:text-white" />
         </div>
       </div>
 
@@ -136,8 +136,8 @@ const ApproachSection = () => {
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row md:items-end justify-between mb-24 border-b-2 border-[#00473e] pb-8">
         <div 
-          className={`transition-all duration-1000 ease-out transform ${
-            isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
+          className={`transition-all duration-400 ease-out transform ${
+            isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-5'
           }`}
         >
           <div className="flex items-center gap-3 mb-4">
@@ -149,8 +149,8 @@ const ApproachSection = () => {
             The Approach
           </h1>
         </div>
-        <p className={`mt-6 md:mt-0 text-[#475d5b] max-w-md text-right text-lg transition-all duration-1000 delay-300 ease-out transform ${
-          isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'
+        <p className={`mt-6 md:mt-0 text-[#475d5b] max-w-md text-right text-lg transition-all duration-400 delay-200 ease-out transform ${
+          isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-5'
         }`}>
           We combine creative passion with strategic execution to bring stories to life.
         </p>

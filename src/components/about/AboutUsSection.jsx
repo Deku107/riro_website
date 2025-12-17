@@ -1,7 +1,7 @@
 import React from 'react';
-import aboutBoard from '../../assets/About us/About us board.png';
-import couchImage from '../../assets/About us/Simpsons couch.png';
-import filmSetImage from '../../assets/About us/film set.png';
+import aboutBoard from '../../assets/About us/WEB GRAPHICS_ABOUT US.png';
+import couchImage from '../../assets/About us/WEB GRAPHICS_OUR MISSION.png';
+import filmSetImage from '../../assets/About us/WEB GRAPHICS_OUR VISION.png';
 
 const AboutUsSection = () => {
   return (
@@ -20,7 +20,7 @@ const AboutUsSection = () => {
             <img
               src={aboutBoard}
               alt="About us board"
-              className="w-52 sm:w-64 md:w-80 h-auto transform transition-all duration-500 hover:scale-110 hover:rotate-2"
+              className="w-64 sm:w-80 md:w-96 h-auto transform transition-all duration-500 hover:scale-110 hover:rotate-2"
             />
           </div>
           <div className="space-y-4 text-base md:text-lg lg:text-xl text-muted">
@@ -42,7 +42,7 @@ const AboutUsSection = () => {
             <img
               src={couchImage}
               alt="Family watching TV on couch"
-              className="w-80 sm:w-96 md:w-[28rem] h-auto transform transition-all duration-500 hover:scale-110 hover:rotate-1"
+              className="w-96 sm:w-[32rem] md:w-[36rem] h-auto transform transition-all duration-500 hover:scale-110 hover:rotate-1"
             />
           </div>
           <div className="space-y-4 max-w-md">
@@ -73,7 +73,7 @@ const AboutUsSection = () => {
             <img
               src={filmSetImage}
               alt="Film set illustration"
-              className="w-96 sm:w-[28rem] md:w-[32rem] h-auto transform transition-all duration-500 hover:scale-110 hover:-rotate-1"
+              className="w-96 sm:w-[32rem] md:w-[40rem] h-auto transform transition-all duration-500 hover:scale-110 hover:-rotate-1"
             />
           </div>
         </div>

@@ -10,28 +10,35 @@ const Hero = () => {
   const heroRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -100px 0px" }
-    );
+    // Skip observer on initial load for better performance
+    const timer = setTimeout(() => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            requestAnimationFrame(() => {
+              setIsVisible(true);
+            });
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.3, rootMargin: "0px 0px -50px 0px" }
+      );
 
-    if (heroRef.current) {
-      observer.observe(heroRef.current);
-    }
+      if (heroRef.current) {
+        observer.observe(heroRef.current);
+      }
 
-    return () => observer.disconnect();
+      return () => observer.disconnect();
+    }, 100); // Delay observer to reduce initial load impact
+
+    return () => clearTimeout(timer);
   }, []);
   
   return (
     <section
       ref={heroRef}
       id="home"
-      className="bg-[#f2f7f5] section-padding section-y relative overflow-hidden scroll-mt-16 md:scroll-mt-20 min-h-screen"
+      className="bg-[#f2f7f5] section-padding section-y relative overflow-hidden scroll-mt-16 md:scroll-mt-20 min-h-screen lg:min-h-screen pb-0"
     >
       {/* Logo Watermark */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 z-0">
@@ -42,27 +49,28 @@ const Hero = () => {
         />
       </div>
       
-      {/* Mobile Image - Above watermark, below text */}
-      <div className="lg:hidden absolute inset-0 flex items-start justify-center md:justify-end pt-96 sm:pt-[112px] md:pt-[28rem] md:pr-8 z-20">
+      {/* Mobile/Tablet Image - Below text */}
+      <div className="lg:hidden flex justify-start mt-4 md:mt-6 z-20">
         <img
           src={heroImage}
           alt="Web Graphics"
           className="h-[35vh] sm:h-[40vh] md:h-[45vh] w-auto object-contain opacity-90"
         />
       </div>
+      
       <div className="relative min-h-screen">
-        {/* Mobile: Image below text, Desktop: Image on right */}
-        <div className="hidden lg:absolute lg:inset-0 lg:flex lg:items-start lg:justify-end lg:pr-4 lg:pr-8 lg:pt-8 lg:pt-12 lg:block">
+        {/* Desktop/Laptop Image - Right side */}
+        <div className="hidden lg:flex lg:absolute lg:inset-0 lg:items-center lg:justify-end lg:pr-8 lg:pt-0 z-20">
           <img
             src={heroImage}
             alt="Web Graphics"
-            className="hidden sm:block h-[45vh] md:h-[55vh] lg:h-[60vh] w-auto object-contain opacity-90 lg:translate-x-8 lg:translate-x-16"
+            className="h-[60vh] w-auto object-contain opacity-90 lg:translate-x-32 lg:translate-y-16"
           />
         </div>
-        <div className="relative z-10 max-w-6xl xl:max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-8 sm:gap-10 lg:gap-20 xl:gap-28 items-center min-h-[70vh] sm:min-h-[75vh] md:min-h-[80vh]">
-            <div className="space-y-6 sm:space-y-8 max-w-full sm:max-w-xl pt-8 lg:pt-4 mx-auto lg:mx-0 text-center lg:text-left -mt-4 sm:-mt-8 md:-mt-12 lg:-mt-24 px-2 sm:px-0">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-[3.5rem] leading-tight font-bold tracking-tight">
+        <div className="relative z-[100] max-w-6xl xl:max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-8 sm:gap-10 lg:gap-20 xl:gap-28 items-center min-h-[60vh] lg:min-h-[70vh]">
+            <div className="space-y-6 sm:space-y-8 max-w-full sm:max-w-xl pt-8 lg:pt-4 mx-auto lg:mx-0 text-left lg:text-left -mt-8 sm:-mt-12 md:-mt-16 lg:-mt-40 px-2 sm:px-0 lg:-ml-24">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-4xl xl:text-5xl 2xl:text-[3.5rem] leading-tight font-bold tracking-tight">
             
             <span 
               className={`
@@ -105,7 +113,7 @@ const Hero = () => {
           </h1>
 
           <p className={`
-            text-xs sm:text-sm md:text-base lg:text-lg text-[#00473e] font-medium leading-relaxed max-w-full sm:max-w-lg mx-auto lg:mx-0 px-3 sm:px-0
+            text-xs sm:text-sm md:text-base lg:text-lg text-[#00473e] font-medium leading-relaxed max-w-full sm:max-w-lg mx-auto lg:mx-0 px-3 sm:px-0 mt-12 lg:mt-6
             transition-all duration-700 ease-out
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'}
           `}
@@ -113,11 +121,11 @@ const Hero = () => {
             RIRO Talehouse is a new-age film and digital content studio building a single-window system for creators—from script to screen.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-4 relative z-30">
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-4 relative z-[100]">
             {/* Mobile: Swipe down text */}
             <button 
               onClick={() => scrollToSection('services')}
-              className="lg:hidden flex items-center gap-2 text-sm text-slate-600 animate-bounce cursor-pointer bg-transparent border-none p-2"
+              className="lg:hidden flex items-center gap-2 text-sm text-slate-600 animate-bounce cursor-pointer bg-transparent border-none p-2 relative z-[100]"
             >
               <span>Swipe down for more</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,8 +135,23 @@ const Hero = () => {
             
             {/* Desktop: Learn More button */}
             <button 
-              onClick={() => scrollToSection('process')}
-              className="hidden lg:inline-flex items-center justify-center rounded-full border border-slate-200 px-6 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-900 hover:text-white relative z-30 pointer-events-auto min-h-[44px] min-w-[44px]"
+              onClick={() => {
+                console.log('Learn More button clicked!');
+                try {
+                  scrollToSection('process');
+                } catch (error) {
+                  console.error('Scroll error:', error);
+                  // Fallback
+                  document.getElementById('process')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              onMouseDown={(e) => {
+                console.log('Learn More button mouse down');
+                e.preventDefault();
+                scrollToSection('process');
+              }}
+              className="hidden lg:inline-flex items-center justify-center rounded-full border border-slate-200 px-6 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-900 hover:text-white relative z-[100] cursor-pointer"
+              style={{ pointerEvents: 'auto', position: 'relative' }}
             >
               Learn More
             </button>
@@ -136,7 +159,14 @@ const Hero = () => {
               href="https://www.youtube.com/@RiroTalehouse" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 text-sm text-slate-900 hover:text-slate-700 transition-colors"
+              onClick={() => console.log('Watch Video link clicked!')}
+              onMouseDown={(e) => {
+                console.log('Watch Video mouse down');
+                e.preventDefault();
+                window.open('https://www.youtube.com/@RiroTalehouse', '_blank', 'noopener,noreferrer');
+              }}
+              className="inline-flex items-center gap-3 text-sm text-slate-900 hover:text-slate-700 transition-colors relative z-[100] cursor-pointer"
+              style={{ pointerEvents: 'auto', position: 'relative' }}
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#00473e] text-white shadow-soft">
                 ▶

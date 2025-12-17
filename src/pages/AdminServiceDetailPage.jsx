@@ -29,7 +29,7 @@ const AdminServiceDetailPage = () => {
     setService(foundService);
     
     // Fetch projects data from backend
-    fetch('http://localhost:5001/api/projects')
+    fetch('http://localhost:5000/api/projects')
       .then(res => res.json())
       .then(data => {
         setProjects(data[serviceId] || []);
@@ -43,7 +43,14 @@ const AdminServiceDetailPage = () => {
   }, [serviceId, navigate]);
 
   const handleBackToServices = () => {
-    navigate('/admin/service-cards');
+    console.log('Navigating to service cards...');
+    try {
+      navigate('/admin/service-cards');
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Fallback navigation
+      window.location.href = '/admin/service-cards';
+    }
   };
 
   const handleAddProject = () => {
@@ -75,7 +82,7 @@ const AdminServiceDetailPage = () => {
       formData.append('image', file);
       
       try {
-        const response = await fetch('http://localhost:5001/api/team/upload', {
+        const response = await fetch('http://localhost:5000/api/team/upload', {
           method: 'POST',
           body: formData
         });
@@ -102,7 +109,7 @@ const AdminServiceDetailPage = () => {
 
   const saveToBackend = (updatedProjects) => {
     // Get current projects data first
-    fetch('http://localhost:5001/api/projects')
+    fetch('http://localhost:5000/api/projects')
       .then(res => res.json())
       .then(allProjects => {
         const projectsData = {
@@ -110,7 +117,7 @@ const AdminServiceDetailPage = () => {
           [serviceId]: updatedProjects
         };
         
-        return fetch('http://localhost:5001/api/projects/save', {
+        return fetch('http://localhost:5000/api/projects/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(projectsData)
@@ -184,7 +191,13 @@ const AdminServiceDetailPage = () => {
             <div className="flex items-center space-x-4">
               <button
                 onClick={handleBackToServices}
-                className="text-gray-600 hover:text-gray-900"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  console.log('Back to services button clicked!');
+                  handleBackToServices();
+                }}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200 relative z-50 cursor-pointer"
+                style={{ pointerEvents: 'auto' }}
               >
                 ← Back to Services
               </button>

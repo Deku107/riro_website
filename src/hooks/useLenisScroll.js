@@ -8,9 +8,12 @@ export const LenisProvider = ({ children }) => {
 
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.1,
+      duration: 0.8, // Reduced duration for faster scrolling
       smooth: true,
-      lerp: 0.1,
+      lerp: 0.15, // Increased lerp for smoother but faster response
+      wheelMultiplier: 0.8, // Reduce wheel sensitivity for better control
+      touchMultiplier: 2, // Better touch support for mobile
+      infinite: false, // Disable infinite scrolling
     });
 
     function raf(time) {

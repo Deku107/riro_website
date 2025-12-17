@@ -23,7 +23,7 @@ export default function PersonCard({ member }) {
   });
 
   return (
-    <div className="flex flex-col md:flex-col lg:flex-row gap-4 lg:gap-6 p-3 lg:p-8 max-w-5xl mx-auto rounded-3xl transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl" style={{backgroundColor: '#f2f7f5'}}>
+    <div className="flex flex-col md:flex-col lg:flex-row gap-4 lg:gap-6 p-3 lg:p-8 max-w-6xl mx-auto rounded-3xl transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl" style={{backgroundColor: '#f2f7f5'}}>
       {/* Profile Card */}
       <div className="flex-shrink-0 w-full md:w-full lg:w-64 max-w-xs sm:max-w-xs md:max-w-sm">
         <div className="bg-gradient-to-br from-custom-400 to-custom-500 rounded-3xl shadow-lg h-60 sm:h-70 md:h-80 lg:h-80 min-h-[280px] lg:min-h-[320px] flex flex-col overflow-hidden p-2 transform transition-all duration-300 hover:shadow-xl">
@@ -47,13 +47,13 @@ export default function PersonCard({ member }) {
           
           <div className="text-center text-white p-4 transform transition-all duration-300 hover:bg-white/10">
             <h3 className="text-lg lg:text-xl font-bold mb-1">{member.name}</h3>
-            <p className="text-custom-100 text-sm">{member.role}</p>
+            <p className="text-white text-sm">{member.role}</p>
           </div>
         </div>
       </div>
 
       {/* Description Card */}
-      <div className="flex-1 max-w-xs sm:max-w-xs md:max-w-sm">
+      <div className="flex-1 max-w-xs sm:max-w-xs md:max-w-lg">
         <div className="bg-gradient-to-br from-custom-400 to-custom-500 rounded-3xl p-3 lg:p-6 shadow-lg h-60 sm:h-70 md:h-80 lg:h-80 min-h-[280px] lg:min-h-[320px] flex flex-col transform transition-all duration-300 hover:shadow-xl w-full">
           <div className="text-white space-y-2 lg:space-y-4 flex-1 overflow-hidden">
             <p className="leading-relaxed text-xs sm:text-sm lg:text-base transform transition-all duration-300 hover:translate-x-2 overflow-y-auto max-h-full break-words">

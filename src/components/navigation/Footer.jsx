@@ -8,7 +8,6 @@ const Footer = () => {
         <p>
           © {new Date().getFullYear()} {siteConfig.brand}. All rights reserved.
         </p>
-        <p>Crafted for storytellers, filmmakers & creators worldwide.</p>
       </div>
     </footer>
   );

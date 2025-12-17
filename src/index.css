@@ -44,12 +44,29 @@
   }
 }
 
+@keyframes hang {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(3deg);
+  }
+  75% {
+    transform: rotate(-3deg);
+  }
+}
+
 .animate-fade-in {
   animation: fade-in 0.6s ease-out forwards;
 }
 
 .animate-fade-in-up {
   animation: fade-in-up 0.8s ease-out forwards;
+}
+
+.animate-hang {
+  animation: hang 4s ease-in-out infinite;
+  transform-origin: top center;
 }
 
 /* Animation delays */

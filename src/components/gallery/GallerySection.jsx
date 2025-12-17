@@ -39,12 +39,11 @@ const GallerySection = () => {
       style={{
         backgroundImage: 'url("/src/assets/Gallary/Gallary bg.jpg")',
         backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
+        backgroundPosition: 'center'
       }}
     >
       {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-white/90 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-white/95"></div>
       
       <div className="max-w-7xl mx-auto relative z-10 px-6 sm:px-8 lg:px-12">
         <div className="text-center mb-16">

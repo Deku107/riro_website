@@ -89,19 +89,19 @@ const ProcessDetails = ({ isOpen, onClose }) => {
     <AnimatePresence>
       {isOpen && (
         <motion.div 
-          className="absolute inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm"
+          className="absolute inset-0 flex items-start justify-center pt-8 lg:items-center z-50 bg-black bg-opacity-60"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
           onClick={onClose}
         >
           <motion.div 
-            className="bg-white bg-opacity-90 backdrop-blur-md shadow-2xl max-w-4xl mx-auto rounded-2xl overflow-hidden"
-            initial={{ y: 20, opacity: 0 }}
+            className="bg-white shadow-2xl max-w-4xl mx-auto rounded-2xl overflow-hidden"
+            initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 20, opacity: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
+            exit={{ y: 10, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut", delay: 0.05 }}
             onClick={(e) => e.stopPropagation()}
           >
         {/* Header */}
@@ -127,6 +127,8 @@ const ProcessDetails = ({ isOpen, onClose }) => {
                   src={currentDetail.image}
                   alt={currentDetail.title}
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-family='sans-serif' font-size='20'%3EImage Coming Soon%3C/text%3E%3C/svg%3E";
                   }}
@@ -156,7 +158,7 @@ const ProcessDetails = ({ isOpen, onClose }) => {
               <div className="flex items-center justify-between mt-6">
                 <button
                   onClick={handlePrevious}
-                  className="p-3 rounded-full bg-[#00473e] text-white hover:bg-[#003d3a] transition-colors"
+                  className="p-3 rounded-full bg-[#00473e] text-white hover:bg-[#003d3a]"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -168,7 +170,7 @@ const ProcessDetails = ({ isOpen, onClose }) => {
                   {stepDetails.map((_, index) => (
                     <div
                       key={index}
-                      className={`w-2 h-2 rounded-full transition-colors ${
+                      className={`w-2 h-2 rounded-full ${
                         index === currentStep ? 'bg-[#00473e]' : 'bg-gray-300'
                       }`}
                     />
@@ -177,7 +179,7 @@ const ProcessDetails = ({ isOpen, onClose }) => {
 
                 <button
                   onClick={handleNext}
-                  className="p-3 rounded-full bg-[#00473e] text-white hover:bg-[#003d3a] transition-colors"
+                  className="p-3 rounded-full bg-[#00473e] text-white hover:bg-[#003d3a]"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

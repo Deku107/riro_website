@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { navLinks } from '../../config/navLinks';
@@ -10,8 +10,44 @@ import { scrollToSection } from '../../utils/scrollToSection';
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    let scrollTimeout;
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Clear existing timeout
+      clearTimeout(scrollTimeout);
+      
+      // Debounce scroll handling
+      scrollTimeout = setTimeout(() => {
+        // Always show navbar when at top of page
+        if (currentScrollY < 50) {
+          setIsVisible(true);
+        }
+        // Hide navbar when scrolling down past 100px
+        else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+          setIsVisible(false);
+        } 
+        // Only show navbar when scrolling up significantly (more than 200px)
+        else if (lastScrollY - currentScrollY > 200) {
+          setIsVisible(true);
+        }
+        
+        setLastScrollY(currentScrollY);
+      }, 10); // Small delay to prevent rapid firing
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [lastScrollY]);
 
   const handleNavClick = (e, link) => {
     if (link.type === 'section' && link.sectionId) {
@@ -30,16 +66,16 @@ const Navbar = () => {
   return (
     <>
       {/* WEB GRAPHICS-04 Image Above Navbar */}
-      <div className="fixed inset-x-0 top-0 z-40 flex justify-start pointer-events-auto">
+      <div className={`fixed inset-x-0 top-0 z-40 flex justify-start pointer-events-auto transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
         <img 
           src={webGraphics04} 
           alt="Web Graphics" 
-          className="hidden sm:block h-32 md:h-40 lg:h-48 w-auto object-contain opacity-90 -mt-2 sm:-mt-4 ml-12 sm:ml-16 md:ml-28 lg:ml-36 xl:ml-[24rem] 2xl:ml-[32rem] transition-all duration-1000 ease-in-out hover:rotate-[15deg] hover:scale-105 hover:translate-y-1 hover:translate-x-1 cursor-pointer origin-top-center"
+          className="hidden sm:block h-32 md:h-40 lg:h-48 w-auto object-contain opacity-90 -mt-2 sm:-mt-4 ml-12 sm:ml-16 md:ml-28 lg:ml-36 xl:ml-[24rem] 2xl:ml-[32rem] transition-all duration-1000 ease-in-out hover:rotate-[15deg] hover:scale-105 hover:translate-y-1 hover:translate-x-1 cursor-pointer origin-top-center animate-hang"
         />
       </div>
       
       {/* Mobile: Mirrored WEB GRAPHICS-04 Image */}
-      <div className="fixed inset-x-0 top-0 z-40 flex justify-end pointer-events-auto sm:hidden">
+      <div className={`fixed inset-x-0 top-0 z-40 flex justify-end pointer-events-auto sm:hidden transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
         <img 
           src={webGraphics04} 
           alt="Web Graphics" 
@@ -48,7 +84,7 @@ const Navbar = () => {
         />
       </div>
       
-      <header className="fixed inset-x-0 top-0 z-50 bg-transparent">
+      <header className={`fixed inset-x-0 top-0 z-50 bg-transparent transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
         <nav className="max-w-6xl mx-auto flex items-center justify-between h-16 md:h-20">
           <Link to="/" className="flex items-center gap-2 sm:gap-4">
             <img src={logo} alt="RIRO Talehouse" className="h-16 sm:h-20 md:h-24 w-auto" />

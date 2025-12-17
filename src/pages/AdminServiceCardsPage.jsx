@@ -20,7 +20,14 @@ const AdminServiceCardsPage = () => {
   }, [navigate]);
 
   const handleBackToDashboard = () => {
-    navigate('/admin/dashboard');
+    console.log('Navigating to dashboard...');
+    try {
+      navigate('/admin/dashboard');
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Fallback navigation
+      window.location.href = '/admin/dashboard';
+    }
   };
 
   const handleManageService = (serviceId) => {
@@ -51,7 +58,7 @@ const AdminServiceCardsPage = () => {
       formData.append('image', file);
       
       try {
-        const response = await fetch('http://localhost:5001/api/team/upload', {
+        const response = await fetch('http://localhost:5000/api/team/upload', {
           method: 'POST',
           body: formData
         });
@@ -110,7 +117,13 @@ const AdminServiceCardsPage = () => {
             <div className="flex items-center space-x-4">
               <button
                 onClick={handleBackToDashboard}
-                className="text-gray-600 hover:text-gray-900"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  console.log('Back to dashboard button clicked!');
+                  handleBackToDashboard();
+                }}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200 relative z-50 cursor-pointer"
+                style={{ pointerEvents: 'auto' }}
               >
                 ← Back to Dashboard
               </button>

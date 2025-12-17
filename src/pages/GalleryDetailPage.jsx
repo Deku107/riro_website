@@ -116,19 +116,19 @@ const GalleryDetailPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm sticky top-0 z-40">
+      <div className="bg-transparent sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <button
               onClick={handleBackToGallery}
-              className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
               Back to Gallery
             </button>
-            <h1 className="text-xl font-semibold text-gray-900">{gallery.title}</h1>
+            <h1 className="text-xl font-semibold text-gray-900 bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg">{gallery.title}</h1>
             <div className="w-20"></div>
           </div>
         </div>

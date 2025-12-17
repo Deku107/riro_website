@@ -41,7 +41,7 @@ const MobileNav = ({ open, setOpen }) => {
           
           {/* Navigation Panel */}
           <motion.div
-            className="relative bg-[#f2f7f5] w-80 h-full max-w-[85vw] shadow-2xl"
+            className="relative bg-white w-80 h-full max-w-[85vw] shadow-2xl"
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
