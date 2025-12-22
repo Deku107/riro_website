@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
+import { auth } from '../config/firebase';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if admin is logged in
     const isLoggedIn = localStorage.getItem('isAdminLoggedIn');
     if (!isLoggedIn) {
       navigate('/admin/login');
@@ -15,9 +16,21 @@ const AdminDashboard = () => {
     setIsLoading(false);
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAdminLoggedIn');
-    navigate('/admin/login');
+  const handleLogout = async () => {
+    try {
+      // Try Firebase logout first
+      if (auth.currentUser) {
+        await signOut(auth);
+      }
+      // Always clear localStorage and redirect
+      localStorage.removeItem('isAdminLoggedIn');
+      navigate('/admin/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Fallback: just clear localStorage and redirect
+      localStorage.removeItem('isAdminLoggedIn');
+      navigate('/admin/login');
+    }
   };
 
   const handleTeamManagement = () => {
@@ -38,22 +51,33 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-            >
-              Logout
-            </button>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-sm text-gray-600 mt-1">
+                Logged in as: {localStorage.getItem('isAdminLoggedIn')}
+              </p>
+            </div>
+            <div style={{ position: 'relative', zIndex: 9999 }}>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  alert('Logging out!');
+                  handleLogout();
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                style={{ cursor: 'pointer', pointerEvents: 'auto' }}
+                type="button"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">
@@ -64,9 +88,7 @@ const AdminDashboard = () => {
           </p>
         </div>
 
-        {/* Management Options */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Team Management Card */}
           <div className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
             <div className="text-center">
               <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-6">
@@ -87,7 +109,6 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Service Card Management Card */}
           <div className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
             <div className="text-center">
               <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">

@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../Dockerfile.backend
+    container_name: riro-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/teamData.json:/app/teamData.json
+      - ./backend/projectsData.json:/app/projectsData.json
+    restart: unless-stopped
+    networks:
+      - riro-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../Dockerfile.frontend
+    container_name: riro-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - riro-network
+
+networks:
+  riro-network:
+    driver: bridge
+
+volumes:
+  uploads:

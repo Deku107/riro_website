@@ -16,14 +16,26 @@ const GallerySection = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    fetch('http://localhost:5000/api/galleries') // fetch real galleries from backend
-      .then(res => res.json())
+    fetch('http://localhost:3001/api/galleries') // fetch real galleries from backend
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => {
-        setGalleries(data);
+        // Ensure data is an array
+        if (Array.isArray(data)) {
+          setGalleries(data);
+        } else {
+          console.error('Expected array but got:', data);
+          setGalleries([]);
+        }
         setIsLoading(false);
       })
       .catch(error => {
-        console.error(error);
+        console.error('Gallery fetch error:', error);
+        setGalleries([]); // Set empty array on error
         setIsLoading(false);
       });
   }, []);

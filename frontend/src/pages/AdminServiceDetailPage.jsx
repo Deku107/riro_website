@@ -29,7 +29,7 @@ const AdminServiceDetailPage = () => {
     setService(foundService);
     
     // Fetch projects data from backend
-    fetch('http://localhost:5000/api/projects')
+    fetch('http://localhost:3001/api/projects')
       .then(res => res.json())
       .then(data => {
         setProjects(data[serviceId] || []);
@@ -82,7 +82,7 @@ const AdminServiceDetailPage = () => {
       formData.append('image', file);
       
       try {
-        const response = await fetch('http://localhost:5000/api/team/upload', {
+        const response = await fetch('http://localhost:3001/api/team/upload', {
           method: 'POST',
           body: formData
         });
@@ -109,7 +109,7 @@ const AdminServiceDetailPage = () => {
 
   const saveToBackend = (updatedProjects) => {
     // Get current projects data first
-    fetch('http://localhost:5000/api/projects')
+    fetch('http://localhost:3001/api/projects')
       .then(res => res.json())
       .then(allProjects => {
         const projectsData = {
@@ -117,7 +117,7 @@ const AdminServiceDetailPage = () => {
           [serviceId]: updatedProjects
         };
         
-        return fetch('http://localhost:5000/api/projects/save', {
+        return fetch('http://localhost:3001/api/projects/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(projectsData)

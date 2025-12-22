@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import YouTubeEmbed from '../components/services/YouTubeEmbed';
 import { scrollToSectionWithRetry } from '../utils/scrollToSection';
 
-const CorporateVideosPage = () => {
+const DigitalCommercialsPage = () => {
   const navigate = useNavigate();
   const [expandedProjects, setExpandedProjects] = useState(new Set());
   const [projects, setProjects] = useState([]);
@@ -13,10 +13,10 @@ const CorporateVideosPage = () => {
 
   useEffect(() => {
     // Fetch projects data from backend
-    fetch('http://localhost:5000/api/projects')
+    fetch('http://localhost:3001/api/projects')
       .then(res => res.json())
       .then(data => {
-        setProjects(data['s4'] || []); // s4 is the service ID for corporate videos
+        setProjects(data['s2'] || []); // s2 is the service ID for digital commercials
         setIsLoading(false);
       })
       .catch(err => {
@@ -96,7 +96,7 @@ const CorporateVideosPage = () => {
           </button>
           
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-[#fffffe] tracking-tight mt-2 bg-[#00473e]/80 backdrop-blur-sm px-3 py-2 rounded-lg inline-block">
-            Corporate Videos
+            Digital Commercials
             <span className="block h-1 w-16 sm:w-20 lg:w-24 bg-[#F2B656] mt-2 rounded-full"></span>
           </h1>
         </div>
@@ -110,7 +110,7 @@ const CorporateVideosPage = () => {
           </div>
         ) : projects.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-white/50 text-lg">Corporate video projects coming soon...</p>
+            <p className="text-white/50 text-lg">Digital commercial projects coming soon...</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
@@ -207,4 +207,4 @@ const CorporateVideosPage = () => {
   );
 };
 
-export default CorporateVideosPage;
+export default DigitalCommercialsPage;

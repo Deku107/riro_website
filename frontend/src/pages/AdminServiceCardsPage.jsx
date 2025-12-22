@@ -58,7 +58,7 @@ const AdminServiceCardsPage = () => {
       formData.append('image', file);
       
       try {
-        const response = await fetch('http://localhost:5000/api/team/upload', {
+        const response = await fetch('http://localhost:3001/api/team/upload', {
           method: 'POST',
           body: formData
         });
