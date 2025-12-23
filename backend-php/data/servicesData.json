@@ -1,0 +1,120 @@
+{
+    "services": [
+        {
+            "id": "s1",
+            "number": "01",
+            "title": "SHORT FILM",
+            "details": [
+                "Director",
+                "Writer",
+                "DOP",
+                "Costume Designer"
+            ],
+            "crew": [
+                "Producer",
+                "Editor",
+                "Sound Designer",
+                "Production Manager"
+            ],
+            "cast": [
+                "Lead Actor",
+                "Supporting Actor",
+                "Background Artists",
+                "Voice Artists"
+            ]
+        },
+        {
+            "id": "s2",
+            "number": "02",
+            "title": "DIGITAL COMMERCIALS",
+            "details": [
+                "Creative Director",
+                "Copywriter",
+                "Art Director",
+                "Brand Strategist"
+            ],
+            "crew": [
+                "Producer",
+                "Cinematographer",
+                "Editor",
+                "Motion Graphics Artist"
+            ],
+            "cast": [
+                "Brand Ambassador",
+                "Actors",
+                "Models",
+                "Voice Over Artist"
+            ]
+        },
+        {
+            "id": "s3",
+            "number": "03",
+            "title": "FEATURE FILM",
+            "details": [
+                "Director",
+                "Writer",
+                "DOP",
+                "Costume Designer"
+            ],
+            "crew": [
+                "Producer",
+                "Editor",
+                "Sound Designer",
+                "Production Manager"
+            ],
+            "cast": [
+                "Lead Actor",
+                "Supporting Actor",
+                "Background Artists",
+                "Voice Artists"
+            ]
+        },
+        {
+            "id": "s4",
+            "number": "04",
+            "title": "Corporate Video",
+            "details": [
+                "Director",
+                "Writer",
+                "DOP",
+                "Costume Designer"
+            ],
+            "crew": [
+                "Producer",
+                "Editor",
+                "Sound Designer",
+                "Production Manager"
+            ],
+            "cast": [
+                "Lead Actor",
+                "Supporting Actor",
+                "Background Artists",
+                "Voice Artists"
+            ]
+        },
+        {
+            "id": "s5",
+            "number": "05",
+            "title": "Music Video",
+            "details": [
+                "Director",
+                "Writer",
+                "DOP",
+                "Costume Designer"
+            ],
+            "crew": [
+                "Producer",
+                "Editor",
+                "Sound Designer",
+                "Production Manager"
+            ],
+            "cast": [
+                "Lead Actor",
+                "Supporting Actor",
+                "Background Artists",
+                "Voice Artists"
+            ]
+        }
+    ],
+    "projects": []
+}

@@ -13,7 +13,7 @@ const CorporateVideosPage = () => {
 
   useEffect(() => {
     // Fetch projects data from backend
-    fetch('http://localhost:3001/api/projects')
+    fetch('http://localhost:8000/api/projects')
       .then(res => res.json())
       .then(data => {
         setProjects(data['s4'] || []); // s4 is the service ID for corporate videos

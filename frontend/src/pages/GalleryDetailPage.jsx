@@ -17,7 +17,7 @@ const GalleryDetailPage = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    fetch(`http://localhost:3001/api/gallery/${galleryId}`)
+    fetch(`http://localhost:8000/api/gallery/${galleryId}`)
       .then((res) => res.json())
       .then((data) => {
         if (!data || !data.length) {
@@ -26,7 +26,7 @@ const GalleryDetailPage = () => {
         }
 
         // Extract folder name from first image
-        const folderName = data[0].asset_folder.split('/').pop();
+        const folderName = data[0].asset_folder ? data[0].asset_folder.split('/').pop() : `gallery_${galleryId}`;
 
         // Transform API response into object with title, description, and photos
         const galleryObj = {

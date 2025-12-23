@@ -29,7 +29,7 @@ const AdminServiceDetailPage = () => {
     setService(foundService);
     
     // Fetch projects data from backend
-    fetch('http://localhost:3001/api/projects')
+    fetch('http://localhost:8000/api/projects')
       .then(res => res.json())
       .then(data => {
         setProjects(data[serviceId] || []);
@@ -82,7 +82,7 @@ const AdminServiceDetailPage = () => {
       formData.append('image', file);
       
       try {
-        const response = await fetch('http://localhost:3001/api/team/upload', {
+        const response = await fetch('http://localhost:8000/api/team/upload', {
           method: 'POST',
           body: formData
         });
@@ -94,6 +94,13 @@ const AdminServiceDetailPage = () => {
             ...prev,
             thumbnailUrl: result.imageUrl
           }));
+          
+          // Refresh projects data from backend after upload
+          fetch('http://localhost:8000/api/projects')
+            .then(res => res.json())
+            .then(data => {
+              setProjects(data[serviceId] || []);
+            });
         } else {
           console.error('Upload failed:', result.error);
           alert('Upload failed: ' + result.error);
@@ -109,7 +116,7 @@ const AdminServiceDetailPage = () => {
 
   const saveToBackend = (updatedProjects) => {
     // Get current projects data first
-    fetch('http://localhost:3001/api/projects')
+    fetch('http://localhost:8000/api/projects')
       .then(res => res.json())
       .then(allProjects => {
         const projectsData = {
@@ -117,11 +124,19 @@ const AdminServiceDetailPage = () => {
           [serviceId]: updatedProjects
         };
         
-        return fetch('http://localhost:3001/api/projects/save', {
+        return fetch('http://localhost:8000/api/projects/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(projectsData)
         });
+      })
+      .then(() => {
+        // Refresh projects data from backend after save
+        return fetch('http://localhost:8000/api/projects');
+      })
+      .then(res => res.json())
+      .then(data => {
+        setProjects(data[serviceId] || []);
       })
       .catch(err => {
         console.error('Failed to save projects:', err);

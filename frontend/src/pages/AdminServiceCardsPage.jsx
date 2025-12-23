@@ -5,7 +5,7 @@ import { SERVICES_DATA } from '../components/services/constants';
 const AdminServiceCardsPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [serviceCards] = useState(SERVICES_DATA);
+  const [serviceCards, setServiceCards] = useState(SERVICES_DATA);
   const [editingCard, setEditingCard] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -18,6 +18,43 @@ const AdminServiceCardsPage = () => {
     }
     setIsLoading(false);
   }, [navigate]);
+
+  useEffect(() => {
+    // Load services data from backend
+    fetch('http://localhost:8000/api/services')
+      .then(res => res.json())
+      .then(data => {
+        console.log('Services data from backend:', data);
+        if (data.services) {
+          console.log('Setting service cards:', data.services);
+          setServiceCards(data.services);
+        }
+      })
+      .catch(err => {
+        console.log('Using fallback services data');
+      });
+  }, []);
+
+  const [services, setServices] = useState(SERVICES_DATA);
+  const [projects, setProjects] = useState({});
+
+  useEffect(() => {
+    if (!isLoading && !isUploading) {
+      saveToBackend();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serviceCards, isUploading]);
+
+  const saveToBackend = () => {
+    fetch('http://localhost:8000/api/services/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        services: serviceCards,
+        projects: projects
+      })
+    });
+  };
 
   const handleBackToDashboard = () => {
     console.log('Navigating to dashboard...');
@@ -58,7 +95,7 @@ const AdminServiceCardsPage = () => {
       formData.append('image', file);
       
       try {
-        const response = await fetch('http://localhost:3001/api/team/upload', {
+        const response = await fetch('http://localhost:8000/api/team/upload', {
           method: 'POST',
           body: formData
         });
@@ -70,6 +107,15 @@ const AdminServiceCardsPage = () => {
             ...prev,
             image: result.imageUrl
           }));
+          
+          // Refresh services data from backend after upload
+          fetch('http://localhost:8000/api/services')
+            .then(res => res.json())
+            .then(data => {
+              if (data.services) {
+                setServiceCards(data.services);
+              }
+            });
         } else {
           console.error('Upload failed:', result.error);
           alert('Upload failed: ' + result.error);
@@ -84,15 +130,32 @@ const AdminServiceCardsPage = () => {
   };
 
   const handleSaveCard = () => {
-    // In a real application, this would save to a database
-    console.log('Saving card:', editingCard);
+    if (!editingCard) return;
+    
+    if (isAddingNew) {
+      // Add new service card
+      const newCard = {
+        ...editingCard,
+        id: 's' + (serviceCards.length + 1),
+        number: String(serviceCards.length + 1).padStart(2, '0')
+      };
+      setServiceCards(prev => [...prev, newCard]);
+    } else {
+      // Update existing service card
+      setServiceCards(prev => 
+        prev.map(card => 
+          card.id === editingCard.id ? editingCard : card
+        )
+      );
+    }
+    
     setEditingCard(null);
     setIsAddingNew(false);
   };
 
   const handleDeleteCard = (cardId) => {
     if (window.confirm('Are you sure you want to delete this service card?')) {
-      console.log('Deleting card:', cardId);
+      setServiceCards(prev => prev.filter(card => card.id !== cardId));
     }
   };
 

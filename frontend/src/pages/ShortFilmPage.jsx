@@ -13,7 +13,7 @@ const ShortFilmPage = () => {
 
   useEffect(() => {
     // Fetch projects data from backend
-    fetch('http://localhost:3001/api/projects')
+    fetch('http://localhost:8000/api/projects')
       .then(res => res.json())
       .then(data => {
         setProjects(data['s1'] || []); // s1 is the service ID for short films
