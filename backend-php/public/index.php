@@ -1,5 +1,5 @@
 <?php
-// Suppress all PHP errors/warnings to ensure clean JSON output
+// Suppress errors for production
 error_reporting(0);
 ini_set('display_errors', 0);
 
@@ -7,13 +7,6 @@ header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-function log_debug($label, $data = null) {
-    error_log(
-        '[GALLERY DEBUG] ' . $label . 
-        ($data !== null ? ' => ' . print_r($data, true) : '')
-    );
-}
 
 // Handle CORS preflight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -143,88 +136,125 @@ switch ($path) {
     //     }
     //     break;
 
-    case "/api/galleries":
-    error_log("API HIT: /api/galleries");
+
+  case "/api/galleries":
 
     try {
-        error_log("Fetching subfolders from Cloudinary: riro");
-        $result = $cloudinary->adminApi()->subFolders('riro');
+        // 1. Get subfolders
+        $url = "https://api.cloudinary.com/v1_1/{$cloudName}/folders/riro";
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+            CURLOPT_USERPWD => "{$apiKey}:{$apiSecret}",
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+        ]);
 
-        error_log("Folders found: " . json_encode($result['folders']));
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-        $galleries = [];
-
-        foreach ($result['folders'] as $folder) {
-            error_log("Processing folder: " . $folder['path']);
-
-            try {
-                $searchResult = $cloudinary->searchApi()
-                    ->expression("folder:{$folder['path']} AND public_id:thumbnail*")
-                    ->maxResults(1)
-                    ->execute();
-
-                error_log("Search result: " . json_encode($searchResult));
-
-                $thumbnail =
-                    $searchResult['resources'][0]['public_id']
-                    ?? "{$folder['path']}/thumbnail_a2m8vf";
-
-                error_log("Thumbnail selected: " . $thumbnail);
-
-                $galleries[] = [
-                    'id'          => $folder['name'],
-                    'title'       => $folder['name'],
-                    'folder'      => $folder['path'],
-                    'thumbnail'   => $thumbnail,
-                    'description' => 'Behind the scenes of our latest film productions',
-                ];
-            } catch (Exception $e) {
-                error_log("Folder error ({$folder['name']}): " . $e->getMessage());
-
-                $galleries[] = [
-                    'id'          => $folder['name'],
-                    'title'       => $folder['name'],
-                    'folder'      => $folder['path'],
-                    'thumbnail'   => "{$folder['path']}/thumbnail_a2m8vf",
-                    'description' => 'Behind the scenes of our latest film productions',
-                ];
-            }
+        if ($httpCode !== 200) {
+            throw new Exception("Folder fetch failed: HTTP {$httpCode} - {$response}");
         }
 
-        error_log("Final galleries payload: " . json_encode($galleries));
+        $result = json_decode($response, true);
+        $galleries = [];
+
+        foreach ($result['folders'] ?? [] as $folder) {
+
+            // 2. Search for thumbnail
+            $searchPayload = json_encode([
+                'expression'  => 'folder="' . $folder['path'] . '" AND public_id:thumbnail*',
+                'max_results' => 1
+            ]);
+
+            $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/resources/search");
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+                CURLOPT_USERPWD => "{$apiKey}:{$apiSecret}",
+                CURLOPT_POST => true,
+                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                CURLOPT_POSTFIELDS => $searchPayload,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_TIMEOUT => 5, // Add timeout to prevent hanging
+            ]);
+
+            $searchResponse = curl_exec($ch);
+            $searchCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            $thumbnail = null;
+
+            if ($searchCode === 200) {
+                $searchResult = json_decode($searchResponse, true);
+                if (!empty($searchResult['resources'][0]['public_id'])) {
+                    $thumbnail = $searchResult['resources'][0]['public_id'];
+                }
+            }
+
+            $galleries[] = [
+                'id'          => $folder['name'],
+                'title'       => $folder['name'],
+                'folder'      => $folder['path'],
+                'thumbnail'   => $thumbnail,
+                'description' => 'Behind the scenes of our latest film productions',
+            ];
+        }
 
         echo json_encode($galleries);
+
     } catch (Exception $e) {
-        error_log("API ERROR /api/galleries: " . $e->getMessage());
         http_response_code(500);
-        echo json_encode(["error" => $e->getMessage()]);
+        echo json_encode(['error' => $e->getMessage()]);
     }
     break;
-
 
 
     case (preg_match("#^/api/gallery/(.+)$#", $path, $matches) ? true : false):
-    $folder = $matches[1];
-    $folderPath = "riro/{$folder}";
+
+    $folderPath = 'riro/' . $matches[1];
 
     try {
-        log_debug('Fetching gallery images', $folderPath);
+        $payload = json_encode([
+            'expression'  => 'folder="' . $folderPath . '"',
+            'sort_by'     => [['created_at' => 'asc']],
+            'max_results' => 100
+        ]);
 
-        $result = $cloudinary->searchApi()
-            ->expression("folder:{$folderPath}")
-            ->sortBy('created_at', 'asc')
-            ->maxResults(100)
-            ->execute();
+        $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/resources/search");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+            CURLOPT_USERPWD => "{$apiKey}:{$apiSecret}",
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => $payload,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+        ]);
 
-        log_debug('Gallery search result', $result);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-        echo json_encode($result['resources']);
+        if ($httpCode !== 200) {
+            throw new Exception("Search failed: {$response}");
+        }
+
+        $result = json_decode($response, true);
+        echo json_encode($result['resources'] ?? []);
+
     } catch (Exception $e) {
-        log_debug('Gallery fetch error', $e->getMessage());
         http_response_code(500);
-        echo json_encode(["error" => $e->getMessage()]);
+        echo json_encode(['error' => $e->getMessage()]);
     }
     break;
+
+
 
 
 

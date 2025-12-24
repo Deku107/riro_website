@@ -2,18 +2,79 @@
     "s1": [
         {
             "id": "p1-test",
-            "title": "Test Project",
-            "director": "Test Director",
+            "title": "CHITTHI",
+            "director": "SANJEEV TRIPATHI",
             "year": "2025",
-            "description": "Test description",
-            "thumbnailUrl": "https:\/\/res.cloudinary.com\/dow6mrkpm\/test.jpg",
-            "youtubeEmbedUrl": "https:\/\/www.youtube.com\/embed\/test",
-            "youtubeUrl": "https:\/\/www.youtube.com\/watch?v=test",
+            "description": "Akshat, a young man who moves from Aligarh to Mumbai for a new job, shares a warm relationship with his mother but struggles with silence and awkwardness around his father. Misunderstandings deepen until, on his father\u2019s birthday, Akshat decides to bridge the gap through a heartfelt letter \u2014 recalling memories of love, sacrifice, and the quiet strength of parenthood.",
+            "thumbnailUrl": "https:\/\/res.cloudinary.com\/dow6mrkpm\/image\/upload\/v1766582927\/team\/team-1766582922.jpg?t=1766582922",
+            "youtubeEmbedUrl": "https:\/\/www.youtube.com\/embed\/ibf5wTcDjRc",
+            "youtubeUrl": "https:\/\/youtu.be\/ibf5wTcDjRc",
             "cast": [
-                "Test Actor"
+                "FATHER - ANOOP TRIVEDI",
+                "MOTHER - JYOTI GONSALAVES",
+                "AKSHAT(SON) - SATYAM SHARMA",
+                "RAVI (AKSHAT'S COLLEGUE) - RAJAT SHARMA",
+                "OFFICE MANAGER - JAYBEER RAWAT",
+                "KID AKSHAT - YUVI"
             ],
             "crew": [
-                "Test Crew"
+                "Producer - ANJALI VERMA",
+                "Story & Director - SANJEEV TRIPATHI",
+                "Screenplay and Dialogue - SOUVIK NANDI",
+                "Cinematographer - ANIRUDH DESPANDE",
+                "Production Designer - NILESSH E WAAGH",
+                "Costume Designer - NEETU BHARDWAJ",
+                "Editor & DI - DHEERAJ SIRSAT"
+            ]
+        },
+        {
+            "id": "ps1-2",
+            "title": "DOT",
+            "director": "Abhay shashikant pandey",
+            "year": "2025",
+            "description": "What happens when a Mute & Blind Boys meet? One can\u2019t speak, and the other one can\u2019t see, yet they understand each other in ways words never could. A story about touch, patience, and the Language of the heart",
+            "thumbnailUrl": "https:\/\/res.cloudinary.com\/dow6mrkpm\/image\/upload\/v1766583137\/team\/team-1766583133.jpg?t=1766583133",
+            "youtubeEmbedUrl": "https:\/\/www.youtube.com\/embed\/ovWdCvBPZ80",
+            "youtubeUrl": "https:\/\/youtu.be\/C6ADECRL7Ag",
+            "cast": [
+                "Master Yuvi",
+                "Master Aarav Gawade"
+            ],
+            "crew": [
+                "producer - anjali verma",
+                "director - abhay shashikant pandey",
+                "creative producer - ritesh verma",
+                "cinematographer - suraj takale",
+                "production designer - nilessh e waagh",
+                "costume designer - neetu bhardwaj ,casting - paragg mehta casting."
+            ]
+        },
+        {
+            "id": "ps1-3",
+            "title": "Lau",
+            "director": "ABHISHEK VIJAY",
+            "year": "2025",
+            "description": "When 10 year old Vaani experiences her first unexpected step into growing up, her father finds the courage, gentleness, and warmth to guide her through it.\nWhy Menstrual Health Matters More Than You Think NOW",
+            "thumbnailUrl": "https:\/\/res.cloudinary.com\/dow6mrkpm\/image\/upload\/v1766583729\/riro\/kali\/team-1766583727.jpg?t=1766583727",
+            "youtubeEmbedUrl": "https:\/\/www.youtube.com\/embed\/eHnnzURspyo",
+            "youtubeUrl": "https:\/\/youtu.be\/HTXQs04Xb1U",
+            "cast": [
+                "Vaani - OMAAZIA KHAN",
+                "Vishal - ABHISHEK VIJAY",
+                "Shruti - RITU SANYAL"
+            ],
+            "crew": [
+                "PRODUCTION HOUSES - ANJPIX COLLECTIVES LLP & GANESHA STUDIOS",
+                "Producer - ANJALI VERMA",
+                "Story",
+                "Screenplay",
+                "Dialogue & Director - ABHISHEK VIJAY\nDoP - ANURAG UPADHYAY",
+                "Creative Producer - RITESH VERMA",
+                "Production Designer - NILESSH E WAAGH",
+                "Costume Designer - NEETU BHARDWAJ",
+                "Editor & DI - DHEERAJ SIRSAT\nBackground Score \/ BGM - ASHIS MOHANTY",
+                "Casting - PARAG DESAI CASTING",
+                "Creative Director - KRISHNAA KUMAR SHUKLA"
             ]
         }
     ],
@@ -31,20 +92,7 @@
             "crew": []
         }
     ],
-    "s2": [
-        {
-            "id": "ps2-1",
-            "title": "dfggggggggg",
-            "director": "dfgggggggggg",
-            "year": "2025",
-            "description": "dfgggggggggggggggggggggggggggggggggg",
-            "thumbnailUrl": "https:\/\/res.cloudinary.com\/dow6mrkpm\/image\/upload\/v1766489434\/team\/team-1766489431.jpg?t=1766489431",
-            "youtubeEmbedUrl": "https:\/\/www.youtube.com\/embed\/ibf5wTcDjRc",
-            "youtubeUrl": "https:\/\/youtu.be\/ibf5wTcDjRc",
-            "cast": [],
-            "crew": []
-        }
-    ],
+    "s2": [],
     "s3": [],
     "s4": []
 }

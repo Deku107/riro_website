@@ -15,9 +15,9 @@ app.use(express.json());
 
 // Cloudinary configuration
 cloudinary.config({
-  cloud_name: 'dow6mrkpm',
-  api_key: '186329281539576',
-  api_secret: 'USUgBE_52uDSEDJFpTcyu3zmcAg'
+  cloud_name: '',
+  api_key: '',
+  api_secret: ''
 });
 
 // Configure multer for image uploads
