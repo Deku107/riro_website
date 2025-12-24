@@ -14,7 +14,7 @@ $data = [
     'image' => $file
 ];
 
-curl_setopt($ch, CURLOPT_URL, 'http://localhost:8000/api/team/upload');
+curl_setopt($ch, CURLOPT_URL, '/api/team/upload');
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

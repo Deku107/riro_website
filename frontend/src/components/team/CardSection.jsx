@@ -24,7 +24,7 @@ const CardSection = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/team')
+    fetch('/api/team')
       .then(res => res.json())
       .then(data => {
         setTeamData(data);

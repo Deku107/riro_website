@@ -25,7 +25,7 @@ $context = stream_context_create([
 ]);
 
 // Make request
-$url = "http://localhost:8000/api/team/upload";
+$url = "/api/team/upload";
 $response = file_get_contents($url, false, $context);
 
 echo "Upload response: " . $response . "\n\n";

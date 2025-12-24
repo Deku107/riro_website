@@ -29,7 +29,7 @@ const AdminTeamPage = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
-  fetch('http://localhost:8000/api/team')
+  fetch('/api/team')
     .then(res => res.json())
     .then(data => {
       setCoreTeamMembers(data.coreTeam);
@@ -85,7 +85,7 @@ useEffect(() => {
       formData.append('image', file);
       
       try {
-        const response = await fetch('http://localhost:8000/api/team/upload', {
+        const response = await fetch('/api/team/upload', {
           method: 'POST',
           body: formData
         });
@@ -104,7 +104,7 @@ useEffect(() => {
           setImagePosition({ x: 50, y: 50 });
           
           // Refresh team data from backend after upload
-          fetch('http://localhost:8000/api/team')
+          fetch('/api/team')
             .then(res => res.json())
             .then(data => {
               setCoreTeamMembers(data.coreTeam);
@@ -137,7 +137,7 @@ useEffect(() => {
 
 
   const saveToBackend = (core, collaborators) => {
-  fetch('http://localhost:8000/api/team/save', {
+  fetch('/api/team/save', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
