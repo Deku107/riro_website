@@ -38,7 +38,7 @@ const Hero = () => {
     <section
       ref={heroRef}
       id="home"
-      className="bg-[#f2f7f5] section-padding section-y relative overflow-hidden scroll-mt-16 md:scroll-mt-20 min-h-screen lg:min-h-screen pb-0"
+      className="bg-[#f2f7f5] section-padding section-y relative overflow-hidden scroll-mt-16 md:scroll-mt-20 min-h-screen lg:min-h-screen pb-0 sm:pb-0 md:pb-0"
     >
       {/* Logo Watermark */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 z-0">
@@ -50,11 +50,11 @@ const Hero = () => {
       </div>
       
       {/* Mobile/Tablet Image - Below text */}
-      <div className="lg:hidden flex justify-start mt-4 md:mt-6 z-20">
+      <div className="lg:hidden flex justify-start mt-1 z-20">
         <img
           src={heroImage}
           alt="Web Graphics"
-          className="h-[35vh] sm:h-[40vh] md:h-[45vh] w-auto object-contain opacity-90"
+          className="h-[25vh] sm:h-[30vh] md:h-[35vh] w-auto object-contain opacity-90"
         />
       </div>
       
@@ -69,7 +69,7 @@ const Hero = () => {
         </div>
         <div className="relative z-[100] max-w-6xl xl:max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-8 sm:gap-10 lg:gap-20 xl:gap-28 items-center min-h-[60vh] lg:min-h-[70vh]">
-            <div className="space-y-6 sm:space-y-8 max-w-full sm:max-w-xl pt-8 lg:pt-4 mx-auto lg:mx-0 text-left lg:text-left -mt-8 sm:-mt-12 md:-mt-16 lg:-mt-40 px-2 sm:px-0 lg:-ml-24">
+            <div className="space-y-6 sm:space-y-8 max-w-full sm:max-w-xl pt-8 lg:pt-4 mx-auto lg:mx-0 text-left lg:text-left -mt-8 sm:-mt-12 md:-mt-16 lg:-mt-40 px-2 sm:px-0 lg:-ml-24 mb-0 pb-0">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-4xl xl:text-5xl 2xl:text-[3.5rem] leading-tight font-bold tracking-tight">
             
             <span 
@@ -113,7 +113,7 @@ const Hero = () => {
           </h1>
 
           <p className={`
-            text-xs sm:text-sm md:text-base lg:text-lg text-[#00473e] font-medium leading-relaxed max-w-full sm:max-w-lg mx-auto lg:mx-0 px-3 sm:px-0 mt-12 lg:mt-6
+            text-xs sm:text-sm md:text-base lg:text-lg text-[#00473e] font-medium leading-relaxed max-w-full sm:max-w-lg mx-auto lg:mx-0 px-3 sm:px-0 mt-6 lg:mt-6 mb-1 sm:mb-1
             transition-all duration-700 ease-out
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'}
           `}
@@ -121,7 +121,7 @@ const Hero = () => {
             RIRO Talehouse is a new-age film and digital content studio building a single-window system for creators—from script to screen.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-4 relative z-[100]">
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-0 mb-0 pb-0 relative z-[100]">
             {/* Mobile: Swipe down text */}
             <button 
               onClick={() => scrollToSection('services')}

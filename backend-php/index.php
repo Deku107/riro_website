@@ -14,6 +14,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+// Simple in-memory cache
+$cache = [];
+$cache_ttl = 300; // 5 minutes
+
+function getCacheKey($key) {
+    return $key;
+}
+
+function getCached($key, $ttl = 300) {
+    global $cache;
+    $cacheKey = getCacheKey($key);
+    if (isset($cache[$cacheKey]) && (time() - $cache[$cacheKey]['timestamp']) < $ttl) {
+        return $cache[$cacheKey]['data'];
+    }
+    return null;
+}
+
+function setCache($key, $data) {
+    global $cache;
+    $cacheKey = getCacheKey($key);
+    $cache[$cacheKey] = [
+        'data' => $data,
+        'timestamp' => time()
+    ];
+}
+
 // Parse request
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
@@ -30,7 +56,7 @@ switch ($path) {
         break;
         
     case "/api/team":
-        $teamFile = __DIR__ . "/../data/teamData.json";
+        $teamFile = __DIR__ . "/data/teamData.json";
         if (file_exists($teamFile)) {
             echo file_get_contents($teamFile);
         } else {
@@ -40,7 +66,7 @@ switch ($path) {
         break;
         
     case "/api/projects":
-        $projectsFile = __DIR__ . "/../data/projectsData.json";
+        $projectsFile = __DIR__ . "/data/projectsData.json";
         if (file_exists($projectsFile)) {
             echo file_get_contents($projectsFile);
         } else {
@@ -54,7 +80,7 @@ switch ($path) {
             $input = file_get_contents('php://input');
             $data = json_decode($input, true);
             if ($data) {
-                $projectsFile = __DIR__ . "/../data/projectsData.json";
+                $projectsFile = __DIR__ . "/data/projectsData.json";
                 $projectsDir = dirname($projectsFile);
                 if (!file_exists($projectsDir)) {
                     mkdir($projectsDir, 0755, true);
@@ -73,7 +99,7 @@ switch ($path) {
         
     case (preg_match("#^/api/projects/(.+)$#", $path, $matches) ? true : false):
         $season = $matches[1];
-        $projectsFile = __DIR__ . "/../data/projectsData.json";
+        $projectsFile = __DIR__ . "/data/projectsData.json";
         if (file_exists($projectsFile)) {
             $projectsData = json_decode(file_get_contents($projectsFile), true);
             if (isset($projectsData[$season])) {
@@ -119,7 +145,7 @@ switch ($path) {
     //     break;
         
     // case (preg_match("#^/api/gallery/(.+)$#", $path, $matches) ? true : false):
-    //     require_once __DIR__ . '/../src/Services/CloudinaryGalleryService.php';
+    //     require_once __DIR__ . '/src/Services/CloudinaryGalleryService.php';
         
     //     $folderName = $matches[1];
     //     $cloudinaryService = new CloudinaryGalleryService();
@@ -139,6 +165,13 @@ switch ($path) {
 
   case "/api/galleries":
 
+    // Check cache first
+    $cached = getCached('galleries');
+    if ($cached) {
+        echo json_encode($cached);
+        break;
+    }
+
     try {
         // 1. Get subfolders
         $url = "https://api.cloudinary.com/v1_1/{$cloudName}/folders/riro";
@@ -149,6 +182,7 @@ switch ($path) {
             CURLOPT_USERPWD => "{$apiKey}:{$apiSecret}",
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_TIMEOUT => 10,
         ]);
 
         $response = curl_exec($ch);
@@ -162,9 +196,11 @@ switch ($path) {
         $result = json_decode($response, true);
         $galleries = [];
 
+        // 2. For each folder, search for its thumbnail
         foreach ($result['folders'] ?? [] as $folder) {
-
-            // 2. Search for thumbnail
+            $thumbnail = null;
+            
+            // Search for thumbnail in this specific folder
             $searchPayload = json_encode([
                 'expression'  => 'folder="' . $folder['path'] . '" AND public_id:thumbnail*',
                 'max_results' => 1
@@ -180,14 +216,12 @@ switch ($path) {
                 CURLOPT_POSTFIELDS => $searchPayload,
                 CURLOPT_SSL_VERIFYPEER => false,
                 CURLOPT_SSL_VERIFYHOST => false,
-                CURLOPT_TIMEOUT => 5, // Add timeout to prevent hanging
+                CURLOPT_TIMEOUT => 5,
             ]);
 
             $searchResponse = curl_exec($ch);
             $searchCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
-
-            $thumbnail = null;
 
             if ($searchCode === 200) {
                 $searchResult = json_decode($searchResponse, true);
@@ -205,6 +239,8 @@ switch ($path) {
             ];
         }
 
+        // Cache the result
+        setCache('galleries', $galleries);
         echo json_encode($galleries);
 
     } catch (Exception $e) {
@@ -235,6 +271,7 @@ switch ($path) {
             CURLOPT_POSTFIELDS => $payload,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_TIMEOUT => 15,
         ]);
 
         $response = curl_exec($ch);
@@ -257,13 +294,12 @@ switch ($path) {
 
 
 
-
     case "/api/team/save":
         if ($method === "POST") {
             $input = file_get_contents('php://input');
             $data = json_decode($input, true);
             if ($data) {
-                $teamFile = __DIR__ . "/../data/teamData.json";
+                $teamFile = __DIR__ . "/data/teamData.json";
                 $teamDir = dirname($teamFile);
                 if (!file_exists($teamDir)) {
                     mkdir($teamDir, 0755, true);
@@ -281,40 +317,51 @@ switch ($path) {
         break;
         
     case "/api/services":
-        $servicesFile = __DIR__ . "/../data/servicesData.json";
-        if (file_exists($servicesFile)) {
-            echo file_get_contents($servicesFile);
-        } else {
-            echo json_encode([
-                'services' => [
-                    [
-                        'id' => 's1',
-                        'number' => '01',
-                        'title' => 'SHORT FILM',
-                        'details' => ['Director', 'Writer', 'DOP', 'Costume Designer'],
-                        'crew' => ['Producer', 'Editor', 'Sound Designer', 'Production Manager'],
-                        'cast' => ['Lead Actor', 'Supporting Actor', 'Background Artists', 'Voice Artists']
-                    ],
-                    [
-                        'id' => 's2',
-                        'number' => '02',
-                        'title' => 'DIGITAL COMMERCIALS',
-                        'details' => ['Creative Director', 'Copywriter', 'Art Director', 'Brand Strategist'],
-                        'crew' => ['Producer', 'Cinematographer', 'Editor', 'Motion Graphics Artist'],
-                        'cast' => ['Brand Ambassador', 'Actors', 'Models', 'Voice Over Artist']
-                    ]
-                ],
-                'projects' => []
-            ]);
-        }
+    // Check cache first
+    $cached = getCached('services');
+    if ($cached) {
+        echo json_encode($cached);
         break;
+    }
+    
+    $servicesFile = __DIR__ . "/data/servicesData.json";
+    if (file_exists($servicesFile)) {
+        $servicesData = json_decode(file_get_contents($servicesFile), true);
+        setCache('services', $servicesData);
+        echo json_encode($servicesData);
+    } else {
+        $defaultServices = [
+            'services' => [
+                [
+                    'id' => 's1',
+                    'number' => '01',
+                    'title' => 'SHORT FILM',
+                    'details' => ['Director', 'Writer', 'DOP', 'Costume Designer'],
+                    'crew' => ['Producer', 'Editor', 'Sound Designer', 'Production Manager'],
+                    'cast' => ['Lead Actor', 'Supporting Actor', 'Background Artists', 'Voice Artists']
+                ],
+                [
+                    'id' => 's2',
+                    'number' => '02',
+                    'title' => 'DIGITAL COMMERCIALS',
+                    'details' => ['Creative Director', 'Copywriter', 'Art Director', 'Brand Strategist'],
+                    'crew' => ['Producer', 'Cinematographer', 'Editor', 'Motion Graphics Artist'],
+                    'cast' => ['Brand Ambassador', 'Actors', 'Models', 'Voice Over Artist']
+                ]
+            ],
+            'projects' => []
+        ];
+        setCache('services', $defaultServices);
+        echo json_encode($defaultServices);
+    }
+    break;
         
     case "/api/services/save":
         if ($method === "POST") {
             $input = file_get_contents('php://input');
             $data = json_decode($input, true);
             if ($data) {
-                $servicesFile = __DIR__ . "/../data/servicesData.json";
+                $servicesFile = __DIR__ . "/data/servicesData.json";
                 $servicesDir = dirname($servicesFile);
                 if (!file_exists($servicesDir)) {
                     mkdir($servicesDir, 0755, true);
