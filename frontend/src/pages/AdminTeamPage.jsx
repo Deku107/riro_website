@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { coreTeam } from '../data/teamData';
 
 const AdminTeamPage = () => {
   const navigate = useNavigate();
@@ -10,11 +9,54 @@ const AdminTeamPage = () => {
   const [imageZoom, setImageZoom] = useState(1);
   const [imagePosition, setImagePosition] = useState({ x: 50, y: 50 });
 
-  const [coreTeamMembers, setCoreTeamMembers] = useState(coreTeam);
+  const [coreTeamMembers, setCoreTeamMembers] = useState([]);
   const [collaboratorMembers, setCollaboratorMembers] = useState({
     directors: [],
     dop: []
   });
+
+  const normalizeTeamData = (data) => {
+  const coreTeam = [];
+  const collaborators = {
+    directors: [],
+    dop: []
+  };
+
+  data.forEach(item => {
+    const normalized = {
+      id: Number(item.id),
+      name: item.name || '',
+      role: item.role || '',
+      description: item.description || '',
+      imageAlt: item.imageAlt || item.name || '',
+      bgColor: item.bgColor || 'bg-blue-100',
+      type:
+        item.type === 'directors'
+          ? 'director'
+          : item.type,
+      image: item.image || '',
+      imageZoom: item.imageZoom ? Number(item.imageZoom) : 1,
+      imagePosition: {
+        x: item.image_position_x ? Number(item.image_position_x) : 50,
+        y: item.image_position_y ? Number(item.image_position_y) : 50
+      }
+    };
+
+    if (item.type === 'core') {
+      coreTeam.push(normalized);
+    }
+
+    if (item.type === 'directors') {
+      collaborators.directors.push(normalized);
+    }
+
+    if (item.type === 'dop') {
+      collaborators.dop.push(normalized);
+    }
+  });
+
+  return { coreTeam, collaborators };
+};
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isAdminLoggedIn');
@@ -28,15 +70,21 @@ const AdminTeamPage = () => {
 
   const [isUploading, setIsUploading] = useState(false);
 
-  useEffect(() => {
-  fetch('/api/team')
+useEffect(() => {
+  fetch('http://localhost:8000/api/team')
     .then(res => res.json())
-    .then(data => {
-      setCoreTeamMembers(data.coreTeam);
-      setCollaboratorMembers(data.collaborators);
+    .then(rawData => {
+      const { coreTeam, collaborators } = normalizeTeamData(rawData);
+      setCoreTeamMembers(coreTeam);
+      setCollaboratorMembers(collaborators);
+      setIsLoading(false);
+    })
+    .catch(err => {
+      console.error('Failed to load team:', err);
       setIsLoading(false);
     });
 }, []);
+
 
 useEffect(() => {
   if (!isLoading && !isUploading) {
@@ -57,22 +105,23 @@ useEffect(() => {
     }
   };
 
-  const handleEditMember = (member, type) => {
-    setEditingMember({ ...member, type });
+  const handleEditMember = (member) => {
+    setEditingMember({ ...member});
   };
 
   const handleAddNewMember = (type) => {
     const newMember = {
-      id: type === 'core' ? Math.max(...coreTeamMembers.map(m => m.id), 0) + 1 :
-          type === 'director' ? Math.max(...collaboratorMembers.directors.map(m => m.id), 0) + 1 :
-          Math.max(...collaboratorMembers.dop.map(m => m.id), 0) + 1,
+      id: type === 'core' ? Date.now() :
+          type === 'director' ? Date.now():
+          Date.now(),
       name: '',
       role: '',
       description: '',
       imageAlt: '',
       image: '',
       bgColor: type === 'core' ? 'bg-blue-100' : undefined,
-      type: type
+      type: type 
+
     };
     setEditingMember(newMember);
   };
@@ -85,7 +134,7 @@ useEffect(() => {
       formData.append('image', file);
       
       try {
-        const response = await fetch('/api/team/upload', {
+        const response = await fetch('http://localhost:8000/api/team/upload', {
           method: 'POST',
           body: formData
         });
@@ -104,12 +153,14 @@ useEffect(() => {
           setImagePosition({ x: 50, y: 50 });
           
           // Refresh team data from backend after upload
-          fetch('/api/team')
+          fetch('http://localhost:8000/api/team')
             .then(res => res.json())
-            .then(data => {
-              setCoreTeamMembers(data.coreTeam);
-              setCollaboratorMembers(data.collaborators);
+            .then(rawData => {
+              const { coreTeam, collaborators } = normalizeTeamData(rawData);
+              setCoreTeamMembers(coreTeam);
+              setCollaboratorMembers(collaborators);
             });
+
         } else {
           console.error('Upload failed:', result.error);
           alert('Upload failed: ' + result.error);
@@ -136,16 +187,25 @@ useEffect(() => {
 
 
 
-  const saveToBackend = (core, collaborators) => {
-  fetch('/api/team/save', {
+ const saveToBackend = (core, collaborators) => {
+  const flattened = [
+    ...core,
+    ...collaborators.directors.map(m => ({ ...m, type: 'directors' })),
+    ...collaborators.dop.map(m => ({ ...m, type: 'dop' }))
+  ].map(m => ({
+    ...m,
+    imageZoom: String(m.imageZoom),
+    image_position_x: String(m.imagePosition?.x ?? 50),
+    image_position_y: String(m.imagePosition?.y ?? 50)
+  }));
+
+  fetch('http://localhost:8000/api/team/save', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      coreTeam: core,
-      collaborators
-    })
+    body: JSON.stringify(flattened)
   });
 };
+
 
 
 const handleSaveMember = () => {
@@ -380,13 +440,13 @@ const handleSaveMember = () => {
                         ↓
                       </button>
                       <button
-                        onClick={() => handleEditMember(member, 'core')}
+                        onClick={() => handleEditMember(member)}
                         className="text-blue-600 hover:text-blue-800"
                       >
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteMember(member.id, 'core')}
+                        onClick={() => handleDeleteMember(member.id)}
                         className="text-red-600 hover:text-red-800"
                       >
                         Delete
@@ -438,7 +498,7 @@ const handleSaveMember = () => {
                           ↓
                         </button>
                         <button
-                          onClick={() => handleEditMember(director, 'director')}
+                          onClick={() => handleEditMember(director)}
                           className="text-blue-600 hover:text-blue-800"
                         >
                           Edit

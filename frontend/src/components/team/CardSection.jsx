@@ -24,7 +24,7 @@ const CardSection = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/team')
+    fetch('http://localhost:8000/api/team')
       .then(res => res.json())
       .then(data => {
         setTeamData(data);
@@ -55,7 +55,7 @@ const CardSection = () => {
           <h2 className="text-4xl font-black text-center mb-12" style={{color: '#00473e'}}>CORE TEAM</h2>
           <div className="space-y-12">
             {/* Dynamically render core team members */}
-            {teamData.coreTeam.map((member, index) => {
+            {teamData?.filter(member => member.type === "core")?.map((member, index) => {
               // Cycle through PersonCard components for more than 6 members
               const cardComponents = [PersonCard2, PersonCard, PersonCard3, PersonCard4, PersonCard5, PersonCard6];
               const PersonCardComponent = cardComponents[index % cardComponents.length];
@@ -78,13 +78,12 @@ const CardSection = () => {
         <div>
           <h2 className="text-4xl font-black text-center mb-12" style={{color: '#00473e'}}>COLLABORATORS</h2>
           
-          {/* Directors Subsection */}
           <div className="mb-12">
             <h3 className="text-2xl font-semibold mb-6 text-gray-700">Director</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {teamData.collaborators.directors.map((director) => (
+              {teamData?.filter(member => member.type === "directors")?.map((director) => (
                 <CollaboratorCard key={director.id} collaborator={director} />
-              ))}
+              )) || null}
             </div>
           </div>
 
@@ -92,11 +91,13 @@ const CardSection = () => {
           <div>
             <h3 className="text-2xl font-semibold mb-6 text-gray-700">DoP</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {teamData.collaborators.dop.map((dop) => (
+              {teamData?.filter(member => member.type === "dop")?.map((dop) => (
                 <CollaboratorCard key={dop.id} collaborator={dop} />
-              ))}
+              )) || null}
             </div>
           </div>
+
+
         </div>
       </div>
     </section>

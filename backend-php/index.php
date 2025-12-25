@@ -1,7 +1,10 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 // Suppress errors for production
-error_reporting(0);
-ini_set('display_errors', 0);
+// error_reporting(0);
+// ini_set('display_errors', 0);
 
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
@@ -56,328 +59,112 @@ switch ($path) {
         break;
         
     case "/api/team":
-        $teamFile = __DIR__ . "/data/teamData.json";
-        if (file_exists($teamFile)) {
-            echo file_get_contents($teamFile);
+        header("Content-Type: application/json");
+
+        $conn = new mysqli("localhost", "root", "root", "riro");
+
+        if ($conn->connect_error) {
+            http_response_code(500);
+            echo json_encode(["error" => "Database connection failed"]);
+            break;
+        }
+
+        // Query team data
+        $sql = "SELECT * FROM team";
+        $result = $conn->query($sql);
+
+        if ($result && $result->num_rows > 0) {
+            $team = [];
+
+            while ($row = $result->fetch_assoc()) {
+                $team[] = $row;
+            }
+
+            echo json_encode($team);
         } else {
             http_response_code(404);
-            echo json_encode(["error" => "Team data not found"]);
+            echo json_encode(["error" => "No team data found"]);
         }
+
+        $conn->close();
         break;
-        
-    case "/api/projects":
-        $projectsFile = __DIR__ . "/data/projectsData.json";
-        if (file_exists($projectsFile)) {
-            echo file_get_contents($projectsFile);
-        } else {
-            http_response_code(404);
-            echo json_encode(["error" => "Projects data not found"]);
-        }
-        break;
-        
-    case "/api/projects/save":
-        if ($method === "POST") {
-            $input = file_get_contents('php://input');
-            $data = json_decode($input, true);
-            if ($data) {
-                $projectsFile = __DIR__ . "/data/projectsData.json";
-                $projectsDir = dirname($projectsFile);
-                if (!file_exists($projectsDir)) {
-                    mkdir($projectsDir, 0755, true);
-                }
-                file_put_contents($projectsFile, json_encode($data, JSON_PRETTY_PRINT));
-                echo json_encode(["success" => true]);
-            } else {
-                http_response_code(400);
-                echo json_encode(["error" => "Invalid JSON data"]);
-            }
-        } else {
-            http_response_code(405);
-            echo json_encode(["error" => "Method not allowed"]);
-        }
-        break;
-        
-    case (preg_match("#^/api/projects/(.+)$#", $path, $matches) ? true : false):
-        $season = $matches[1];
-        $projectsFile = __DIR__ . "/data/projectsData.json";
-        if (file_exists($projectsFile)) {
-            $projectsData = json_decode(file_get_contents($projectsFile), true);
-            if (isset($projectsData[$season])) {
-                echo json_encode($projectsData[$season]);
-            } else {
-                http_response_code(404);
-                echo json_encode(["error" => "Season not found"]);
-            }
-        } else {
-            http_response_code(404);
-            echo json_encode(["error" => "Projects data not found"]);
-        }
-        break;
-        
-    // case "/api/galleries":
-    //     $galleries = [
-    //         [
-    //             'id' => 'chitthi',
-    //             'title' => 'Chitthi',
-    //             'folder' => 'riro/chitthi',
-    //             'thumbnail' => 'https://res.cloudinary.com/dow6mrkpm/image/upload/riro/chitthi/thumbnail',
-    //             'description' => 'Behind the scenes of our latest film productions',
-    //             'imageCount' => 4
-    //         ],
-    //         [
-    //             'id' => 'kali',
-    //             'title' => 'Kali',
-    //             'folder' => 'riro/kali',
-    //             'thumbnail' => 'https://res.cloudinary.com/dow6mrkpm/image/upload/riro/kali/thumbnail',
-    //             'description' => 'Behind the scenes of our latest film productions',
-    //             'imageCount' => 3
-    //         ],
-    //         [
-    //             'id' => 'dot',
-    //             'title' => 'Dot',
-    //             'folder' => 'riro/dot',
-    //             'thumbnail' => 'https://res.cloudinary.com/dow6mrkpm/image/upload/riro/dot/thumbnail',
-    //             'description' => 'Behind the scenes of our latest film productions',
-    //             'imageCount' => 5
-    //         ]
-    //     ];
-    //     echo json_encode($galleries);
-    //     break;
-        
-    // case (preg_match("#^/api/gallery/(.+)$#", $path, $matches) ? true : false):
-    //     require_once __DIR__ . '/src/Services/CloudinaryGalleryService.php';
-        
-    //     $folderName = $matches[1];
-    //     $cloudinaryService = new CloudinaryGalleryService();
-        
-    //     try {
-    //         $images = $cloudinaryService->getFolderImages($folderName);
-    //         $filteredImages = $cloudinaryService->filterThumbnails($images);
-            
-    //         echo json_encode(array_values($filteredImages));
-    //     } catch (Exception $e) {
-    //         error_log("Gallery API error: " . $e->getMessage());
-    //         http_response_code(500);
-    //         echo json_encode(["error" => "Failed to fetch gallery images"]);
-    //     }
-    //     break;
-
-
-  case "/api/galleries":
-
-    // Check cache first
-    $cached = getCached('galleries');
-    if ($cached) {
-        echo json_encode($cached);
-        break;
-    }
-
-    try {
-        // 1. Get subfolders
-        $url = "https://api.cloudinary.com/v1_1/{$cloudName}/folders/riro";
-        $ch = curl_init($url);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-            CURLOPT_USERPWD => "{$apiKey}:{$apiSecret}",
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_TIMEOUT => 10,
-        ]);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode !== 200) {
-            throw new Exception("Folder fetch failed: HTTP {$httpCode} - {$response}");
-        }
-
-        $result = json_decode($response, true);
-        $galleries = [];
-
-        // 2. For each folder, search for its thumbnail
-        foreach ($result['folders'] ?? [] as $folder) {
-            $thumbnail = null;
-            
-            // Search for thumbnail in this specific folder
-            $searchPayload = json_encode([
-                'expression'  => 'folder="' . $folder['path'] . '" AND public_id:thumbnail*',
-                'max_results' => 1
-            ]);
-
-            $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/resources/search");
-            curl_setopt_array($ch, [
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-                CURLOPT_USERPWD => "{$apiKey}:{$apiSecret}",
-                CURLOPT_POST => true,
-                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-                CURLOPT_POSTFIELDS => $searchPayload,
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_SSL_VERIFYHOST => false,
-                CURLOPT_TIMEOUT => 5,
-            ]);
-
-            $searchResponse = curl_exec($ch);
-            $searchCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if ($searchCode === 200) {
-                $searchResult = json_decode($searchResponse, true);
-                if (!empty($searchResult['resources'][0]['public_id'])) {
-                    $thumbnail = $searchResult['resources'][0]['public_id'];
-                }
-            }
-
-            $galleries[] = [
-                'id'          => $folder['name'],
-                'title'       => $folder['name'],
-                'folder'      => $folder['path'],
-                'thumbnail'   => $thumbnail,
-                'description' => 'Behind the scenes of our latest film productions',
-            ];
-        }
-
-        // Cache the result
-        setCache('galleries', $galleries);
-        echo json_encode($galleries);
-
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
-    }
-    break;
-
-
-    case (preg_match("#^/api/gallery/(.+)$#", $path, $matches) ? true : false):
-
-    $folderPath = 'riro/' . $matches[1];
-
-    try {
-        $payload = json_encode([
-            'expression'  => 'folder="' . $folderPath . '"',
-            'sort_by'     => [['created_at' => 'asc']],
-            'max_results' => 100
-        ]);
-
-        $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/resources/search");
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-            CURLOPT_USERPWD => "{$apiKey}:{$apiSecret}",
-            CURLOPT_POST => true,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-            CURLOPT_POSTFIELDS => $payload,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_TIMEOUT => 15,
-        ]);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode !== 200) {
-            throw new Exception("Search failed: {$response}");
-        }
-
-        $result = json_decode($response, true);
-        echo json_encode($result['resources'] ?? []);
-
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
-    }
-    break;
-
-
-
-
-    case "/api/team/save":
-        if ($method === "POST") {
-            $input = file_get_contents('php://input');
-            $data = json_decode($input, true);
-            if ($data) {
-                $teamFile = __DIR__ . "/data/teamData.json";
-                $teamDir = dirname($teamFile);
-                if (!file_exists($teamDir)) {
-                    mkdir($teamDir, 0755, true);
-                }
-                file_put_contents($teamFile, json_encode($data, JSON_PRETTY_PRINT));
-                echo json_encode(["success" => true]);
-            } else {
-                http_response_code(400);
-                echo json_encode(["error" => "Invalid JSON data"]);
-            }
-        } else {
-            http_response_code(405);
-            echo json_encode(["error" => "Method not allowed"]);
-        }
-        break;
-        
-    case "/api/services":
-    // Check cache first
-    $cached = getCached('services');
-    if ($cached) {
-        echo json_encode($cached);
-        break;
-    }
     
-    $servicesFile = __DIR__ . "/data/servicesData.json";
-    if (file_exists($servicesFile)) {
-        $servicesData = json_decode(file_get_contents($servicesFile), true);
-        setCache('services', $servicesData);
-        echo json_encode($servicesData);
-    } else {
-        $defaultServices = [
-            'services' => [
-                [
-                    'id' => 's1',
-                    'number' => '01',
-                    'title' => 'SHORT FILM',
-                    'details' => ['Director', 'Writer', 'DOP', 'Costume Designer'],
-                    'crew' => ['Producer', 'Editor', 'Sound Designer', 'Production Manager'],
-                    'cast' => ['Lead Actor', 'Supporting Actor', 'Background Artists', 'Voice Artists']
-                ],
-                [
-                    'id' => 's2',
-                    'number' => '02',
-                    'title' => 'DIGITAL COMMERCIALS',
-                    'details' => ['Creative Director', 'Copywriter', 'Art Director', 'Brand Strategist'],
-                    'crew' => ['Producer', 'Cinematographer', 'Editor', 'Motion Graphics Artist'],
-                    'cast' => ['Brand Ambassador', 'Actors', 'Models', 'Voice Over Artist']
-                ]
-            ],
-            'projects' => []
-        ];
-        setCache('services', $defaultServices);
-        echo json_encode($defaultServices);
-    }
-    break;
-        
-    case "/api/services/save":
-        if ($method === "POST") {
-            $input = file_get_contents('php://input');
-            $data = json_decode($input, true);
-            if ($data) {
-                $servicesFile = __DIR__ . "/data/servicesData.json";
-                $servicesDir = dirname($servicesFile);
-                if (!file_exists($servicesDir)) {
-                    mkdir($servicesDir, 0755, true);
-                }
-                file_put_contents($servicesFile, json_encode($data, JSON_PRETTY_PRINT));
-                echo json_encode(["success" => true]);
-            } else {
-                http_response_code(400);
-                echo json_encode(["error" => "Invalid JSON data"]);
-            }
-        } else {
+    case "/api/team/save":
+        header("Content-Type: application/json");
+
+        if ($method !== "POST") {
             http_response_code(405);
             echo json_encode(["error" => "Method not allowed"]);
+            break;
         }
+
+        try {
+            require_once __DIR__ . "/db.php";
+
+            $input = file_get_contents("php://input");
+            $data = json_decode($input, true);
+
+            if (!is_array($data)) {
+                throw new Exception("Invalid JSON payload");
+            }
+
+            $pdo->beginTransaction();
+
+            $stmt = $pdo->prepare("
+                INSERT INTO team
+                (id, name, role, description, imageAlt, bgColor, type, image,
+                imageZoom, image_position_x, image_position_y)
+                VALUES
+                (:id, :name, :role, :description, :imageAlt, :bgColor, :type, :image,
+                :imageZoom, :image_position_x, :image_position_y)
+                ON DUPLICATE KEY UPDATE
+                    name = VALUES(name),
+                    role = VALUES(role),
+                    description = VALUES(description),
+                    imageAlt = VALUES(imageAlt),
+                    bgColor = VALUES(bgColor),
+                    type = VALUES(type),
+                    image = VALUES(image),
+                    imageZoom = VALUES(imageZoom),
+                    image_position_x = VALUES(image_position_x),
+                    image_position_y = VALUES(image_position_y)
+            ");
+
+            foreach ($data as $member) {
+                $stmt->execute([
+                    ":id" => $member["id"],
+                    ":name" => $member["name"] ?? null,
+                    ":role" => $member["role"] ?? null,
+                    ":description" => $member["description"] ?? null,
+                    ":imageAlt" => $member["imageAlt"] ?? null,
+                    ":bgColor" => $member["bgColor"] ?? null,
+                    ":type" => $member["type"] ?? null,
+                    ":image" => $member["image"] ?? null,
+                    ":imageZoom" => $member["imageZoom"] ?? null,
+                    ":image_position_x" => $member["image_position_x"] ?? null,
+                    ":image_position_y" => $member["image_position_y"] ?? null
+                ]);
+            }
+
+            $pdo->commit();
+
+            echo json_encode([
+                "success" => true,
+                "count" => count($data)
+            ]);
+
+        } catch (Throwable $e) {
+            if (isset($pdo) && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
+            http_response_code(500);
+            echo json_encode([
+                "error" => $e->getMessage()
+            ]);
+        }
+
         break;
-        
     case "/api/team/upload":
         if ($method === "POST") {
             if (!isset($_FILES["image"]) || $_FILES["image"]["error"] !== UPLOAD_ERR_OK) {
@@ -516,6 +303,360 @@ switch ($path) {
             echo json_encode(["error" => "Method not allowed"]);
         }
         break;
+    
+    case "/api/projects":
+        require_once __DIR__ . "/db.php"; // adjust path if needed
+
+        $response = [
+            "s1" => [],
+            "s2" => [],
+            "s3" => [],
+            "s4" => [],
+            "s5" => []
+        ];
+
+        try {
+            $sql = "SELECT * FROM films ORDER BY created_at ASC";
+            $stmt = $pdo->query($sql);
+
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+                $film = [
+                    "id" => $row["id"],
+                    "title" => $row["title"],
+                    "director" => $row["director"],
+                    "year" => (string) $row["year"],
+                    "description" => $row["description"],
+                    "thumbnailUrl" => $row["thumbnail_url"],
+                    "youtubeEmbedUrl" => $row["youtube_embed_url"],
+                    "youtubeUrl" => $row["youtube_url"],
+                    "cast" => json_decode($row["cast"], true) ?? [],
+                    "crew" => json_decode($row["crew"], true) ?? []
+                ];
+
+                if (isset($response[$row["section"]])) {
+                    $response[$row["section"]][] = $film;
+                }
+            }
+
+            echo json_encode(
+                $response,
+                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+            );
+
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => "Failed to fetch projects"]);
+        }
+
+        break;
+
+        
+    case "/api/projects/save":
+
+        if ($method !== "POST") {
+            http_response_code(405);
+            echo json_encode(["error" => "Method not allowed"]);
+            break;
+        }
+
+        header("Content-Type: application/json; charset=UTF-8");
+
+        require_once __DIR__ . "/db.php";
+
+        $input = file_get_contents("php://input");
+        $data = json_decode($input, true);
+
+        if (!$data || !is_array($data)) {
+            http_response_code(400);
+            echo json_encode(["error" => "Invalid JSON data"]);
+            break;
+        }
+
+        $allowedSections = ["s1", "s2", "s3", "s4", "s5"];
+
+        $sql = "
+            UPDATE films SET
+                section = :section,
+                title = :title,
+                director = :director,
+                year = :year,
+                description = :description,
+                thumbnail_url = :thumbnail_url,
+                youtube_embed_url = :youtube_embed_url,
+                youtube_url = :youtube_url,
+                cast = :cast,
+                crew = :crew
+            WHERE id = :id
+        ";
+
+        $stmt = $pdo->prepare($sql);
+
+        $updatedCount = 0;
+
+        try {
+            foreach ($data as $section => $films) {
+
+                if (!in_array($section, $allowedSections) || !is_array($films)) {
+                    continue;
+                }
+
+                foreach ($films as $film) {
+
+                    if (empty($film["id"])) {
+                        continue;
+                    }
+
+                    $stmt->execute([
+                        ":id" => $film["id"],
+                        ":section" => $section,
+                        ":title" => $film["title"] ?? "",
+                        ":director" => $film["director"] ?? "",
+                        ":year" => (int) ($film["year"] ?? 0),
+                        ":description" => $film["description"] ?? "",
+                        ":thumbnail_url" => $film["thumbnailUrl"] ?? "",
+                        ":youtube_embed_url" => $film["youtubeEmbedUrl"] ?? "",
+                        ":youtube_url" => $film["youtubeUrl"] ?? "",
+                        ":cast" => json_encode($film["cast"] ?? []),
+                        ":crew" => json_encode($film["crew"] ?? [])
+                    ]);
+
+                    if ($stmt->rowCount() > 0) {
+                        $updatedCount++;
+                    }
+                }
+            }
+
+            echo json_encode([
+                "success" => true,
+                "updated_records" => $updatedCount
+            ]);
+
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                "error" => "Failed to save projects",
+                "message" => $e->getMessage()
+            ]);
+        }
+
+        break;
+
+        
+    case (preg_match("#^/api/projects/(.+)$#", $path, $matches) ? true : false):
+        $season = $matches[1];
+        $projectsFile = __DIR__ . "/data/projectsData.json";
+        if (file_exists($projectsFile)) {
+            $projectsData = json_decode(file_get_contents($projectsFile), true);
+            if (isset($projectsData[$season])) {
+                echo json_encode($projectsData[$season]);
+            } else {
+                http_response_code(404);
+                echo json_encode(["error" => "Season not found"]);
+            }
+        } else {
+            http_response_code(404);
+            echo json_encode(["error" => "Projects data not found"]);
+        }
+        break;
+        
+
+
+
+    case "/api/galleries":
+
+        // Check cache first
+        $cached = getCached('galleries');
+        if ($cached) {
+            echo json_encode($cached);
+            break;
+        }
+
+        try {
+            // 1. Get subfolders
+            $url = "https://api.cloudinary.com/v1_1/{$cloudName}/folders/riro";
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+                CURLOPT_USERPWD => "{$apiKey}:{$apiSecret}",
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_TIMEOUT => 10,
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode !== 200) {
+                throw new Exception("Folder fetch failed: HTTP {$httpCode} - {$response}");
+            }
+
+            $result = json_decode($response, true);
+            $galleries = [];
+
+            // 2. For each folder, search for its thumbnail
+            foreach ($result['folders'] ?? [] as $folder) {
+                $thumbnail = null;
+                
+                // Search for thumbnail in this specific folder
+                $searchPayload = json_encode([
+                    'expression'  => 'folder="' . $folder['path'] . '" AND public_id:thumbnail*',
+                    'max_results' => 1
+                ]);
+
+                $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/resources/search");
+                curl_setopt_array($ch, [
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+                    CURLOPT_USERPWD => "{$apiKey}:{$apiSecret}",
+                    CURLOPT_POST => true,
+                    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                    CURLOPT_POSTFIELDS => $searchPayload,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => false,
+                    CURLOPT_TIMEOUT => 5,
+                ]);
+
+                $searchResponse = curl_exec($ch);
+                $searchCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+
+                if ($searchCode === 200) {
+                    $searchResult = json_decode($searchResponse, true);
+                    if (!empty($searchResult['resources'][0]['public_id'])) {
+                        $thumbnail = $searchResult['resources'][0]['public_id'];
+                    }
+                }
+
+                $galleries[] = [
+                    'id'          => $folder['name'],
+                    'title'       => $folder['name'],
+                    'folder'      => $folder['path'],
+                    'thumbnail'   => $thumbnail,
+                    'description' => 'Behind the scenes of our latest film productions',
+                ];
+            }
+
+            // Cache the result
+            setCache('galleries', $galleries);
+            echo json_encode($galleries);
+
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+        break;
+
+
+    case (preg_match("#^/api/gallery/(.+)$#", $path, $matches) ? true : false):
+
+        $folderPath = 'riro/' . $matches[1];
+
+        try {
+            $payload = json_encode([
+                'expression'  => 'folder="' . $folderPath . '"',
+                'sort_by'     => [['created_at' => 'asc']],
+                'max_results' => 100
+            ]);
+
+            $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/resources/search");
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+                CURLOPT_USERPWD => "{$apiKey}:{$apiSecret}",
+                CURLOPT_POST => true,
+                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                CURLOPT_POSTFIELDS => $payload,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_TIMEOUT => 15,
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode !== 200) {
+                throw new Exception("Search failed: {$response}");
+            }
+
+            $result = json_decode($response, true);
+            echo json_encode($result['resources'] ?? []);
+
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+        break;
+
+  
+
+        
+    case "/api/services":
+        // Check cache first
+        $cached = getCached('services');
+        if ($cached) {
+            echo json_encode($cached);
+            break;
+        }
+        
+        $servicesFile = __DIR__ . "/data/servicesData.json";
+        if (file_exists($servicesFile)) {
+            $servicesData = json_decode(file_get_contents($servicesFile), true);
+            setCache('services', $servicesData);
+            echo json_encode($servicesData);
+        } else {
+            $defaultServices = [
+                'services' => [
+                    [
+                        'id' => 's1',
+                        'number' => '01',
+                        'title' => 'SHORT FILM',
+                        'details' => ['Director', 'Writer', 'DOP', 'Costume Designer'],
+                        'crew' => ['Producer', 'Editor', 'Sound Designer', 'Production Manager'],
+                        'cast' => ['Lead Actor', 'Supporting Actor', 'Background Artists', 'Voice Artists']
+                    ],
+                    [
+                        'id' => 's2',
+                        'number' => '02',
+                        'title' => 'DIGITAL COMMERCIALS',
+                        'details' => ['Creative Director', 'Copywriter', 'Art Director', 'Brand Strategist'],
+                        'crew' => ['Producer', 'Cinematographer', 'Editor', 'Motion Graphics Artist'],
+                        'cast' => ['Brand Ambassador', 'Actors', 'Models', 'Voice Over Artist']
+                    ]
+                ],
+                'projects' => []
+            ];
+            setCache('services', $defaultServices);
+            echo json_encode($defaultServices);
+        }
+        break;
+        
+    case "/api/services/save":
+        if ($method === "POST") {
+            $input = file_get_contents('php://input');
+            $data = json_decode($input, true);
+            if ($data) {
+                $servicesFile = __DIR__ . "/data/servicesData.json";
+                $servicesDir = dirname($servicesFile);
+                if (!file_exists($servicesDir)) {
+                    mkdir($servicesDir, 0755, true);
+                }
+                file_put_contents($servicesFile, json_encode($data, JSON_PRETTY_PRINT));
+                echo json_encode(["success" => true]);
+            } else {
+                http_response_code(400);
+                echo json_encode(["error" => "Invalid JSON data"]);
+            }
+        } else {
+            http_response_code(405);
+            echo json_encode(["error" => "Method not allowed"]);
+        }
+        break;
+        
+    
         
     default:
         http_response_code(404);
