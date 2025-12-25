@@ -38,27 +38,27 @@ const Hero = () => {
     <section
       ref={heroRef}
       id="home"
-      className="bg-[#f2f7f5] section-padding section-y relative overflow-hidden scroll-mt-16 md:scroll-mt-20 min-h-screen lg:min-h-screen pb-0 sm:pb-0 md:pb-0"
+      className="bg-[#f2f7f5] section-padding section-y relative overflow-hidden scroll-mt-16 md:scroll-mt-20 min-h-[70vh] lg:min-h-screen pb-0 sm:pb-0 md:pb-0"
     >
       {/* Logo Watermark */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 z-0">
         <img 
           src={logo} 
           alt="RIRO Talehouse Watermark" 
-          className="w-96 h-auto object-contain transform scale-150"
+          className="w-[28rem] h-auto object-contain transform scale-175"
         />
       </div>
       
       {/* Mobile/Tablet Image - Below text */}
-      <div className="lg:hidden flex justify-start mt-1 z-20">
+      <div className="lg:hidden flex justify-start mt-4 z-20 mb-6">
         <img
           src={heroImage}
           alt="Web Graphics"
-          className="h-[25vh] sm:h-[30vh] md:h-[35vh] w-auto object-contain opacity-90"
+          className="h-[35vh] sm:h-[40vh] md:h-[45vh] w-auto object-contain opacity-90"
         />
       </div>
       
-      <div className="relative min-h-screen">
+      <div className="relative min-h-[50vh] lg:min-h-screen">
         {/* Desktop/Laptop Image - Right side */}
         <div className="hidden lg:flex lg:absolute lg:inset-0 lg:items-center lg:justify-end lg:pr-8 lg:pt-0 z-20">
           <img
@@ -68,7 +68,7 @@ const Hero = () => {
           />
         </div>
         <div className="relative z-[100] max-w-6xl xl:max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-8 sm:gap-10 lg:gap-20 xl:gap-28 items-center min-h-[60vh] lg:min-h-[70vh]">
+          <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-8 sm:gap-10 lg:gap-20 xl:gap-28 items-center min-h-[40vh] lg:min-h-[70vh]">
             <div className="space-y-6 sm:space-y-8 max-w-full sm:max-w-xl pt-8 lg:pt-4 mx-auto lg:mx-0 text-left lg:text-left -mt-8 sm:-mt-12 md:-mt-16 lg:-mt-40 px-2 sm:px-0 lg:-ml-24 mb-0 pb-0">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-4xl xl:text-5xl 2xl:text-[3.5rem] leading-tight font-bold tracking-tight">
             
@@ -171,7 +171,7 @@ const Hero = () => {
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#00473e] text-white shadow-soft">
                 ▶
               </span>
-              Watch Video
+              Visit Youtube Channel
             </a>
           </div>
             </div>

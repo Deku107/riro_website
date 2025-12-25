@@ -11,43 +11,34 @@ import { scrollToSection } from '../../utils/scrollToSection';
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    let scrollTimeout;
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // Clear existing timeout
-      clearTimeout(scrollTimeout);
-      
-      // Debounce scroll handling
-      scrollTimeout = setTimeout(() => {
-        // Always show navbar when at top of page
-        if (currentScrollY < 50) {
-          setIsVisible(true);
-        }
-        // Hide navbar when scrolling down past 100px
-        else if (currentScrollY > lastScrollY && currentScrollY > 100) {
-          setIsVisible(false);
-        } 
-        // Only show navbar when scrolling up significantly (more than 200px)
-        else if (lastScrollY - currentScrollY > 200) {
-          setIsVisible(true);
-        }
-        
-        setLastScrollY(currentScrollY);
-      }, 10); // Small delay to prevent rapid firing
-    };
+    // Only show navbar when hero section is visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        setIsVisible(entry.isIntersecting);
+      },
+      { 
+        threshold: 0.5, // Show when 50% of hero is visible
+        rootMargin: '0px 0px -100px 0px' // Hide earlier when scrolling down
+      }
+    );
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    const heroSection = document.getElementById('home');
+    if (heroSection) {
+      observer.observe(heroSection);
+    }
+
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      clearTimeout(scrollTimeout);
+      if (heroSection) {
+        observer.unobserve(heroSection);
+      }
+      observer.disconnect();
     };
-  }, [lastScrollY]);
+  }, []);
 
   const handleNavClick = (e, link) => {
     if (link.type === 'section' && link.sectionId) {
@@ -70,7 +61,7 @@ const Navbar = () => {
         <img 
           src={webGraphics04} 
           alt="Web Graphics" 
-          className="hidden sm:block h-32 md:h-40 lg:h-48 w-auto object-contain opacity-90 -mt-2 sm:-mt-4 ml-12 sm:ml-16 md:ml-28 lg:ml-36 xl:ml-[24rem] 2xl:ml-[32rem] transition-all duration-1000 ease-in-out hover:rotate-[15deg] hover:scale-105 hover:translate-y-1 hover:translate-x-1 cursor-pointer origin-top-center animate-hang"
+          className="hidden sm:block h-32 md:h-40 lg:h-48 w-auto object-contain opacity-90 -mt-2 sm:-mt-4 ml-12 sm:ml-16 md:ml-28 lg:ml-24 xl:ml-[24rem] 2xl:ml-[32rem] transition-all duration-1000 ease-in-out hover:rotate-[15deg] hover:scale-105 hover:translate-y-1 hover:translate-x-1 cursor-pointer origin-top-center animate-hang"
         />
       </div>
       
@@ -86,8 +77,8 @@ const Navbar = () => {
       
       <header className={`fixed inset-x-0 top-0 z-50 bg-transparent transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
         <nav className="max-w-6xl mx-auto flex items-center justify-between h-16 md:h-20">
-          <Link to="/" className="flex items-center gap-2 sm:gap-4">
-            <img src={logo} alt="RIRO Talehouse" className="h-16 sm:h-20 md:h-24 w-auto" />
+          <Link to="/" className="flex items-center gap-2 sm:gap-4 ml-4 sm:ml-6 md:ml-0">
+            <img src={logo} alt="RIRO Talehouse" className="h-24 sm:h-28 md:h-28 lg:h-32 w-auto" />
           </Link>
 
           <div className="hidden md:flex items-center gap-4 lg:gap-8">
@@ -134,11 +125,11 @@ const Navbar = () => {
                 href={siteConfig.social.twitter} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full bg-[#1da1f2] hover:bg-[#1a91da] transition-all duration-300 hover:scale-110"
-                aria-label="Twitter"
+                className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full bg-black hover:bg-gray-800 transition-all duration-300 hover:scale-110"
+                aria-label="X"
               >
                 <svg className="w-3 h-3 md:w-4 md:h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
               </a>
               

@@ -160,7 +160,7 @@ const CorporateVideosPage = () => {
                   
                   {/* Expandable Content */}
                   <div className={`space-y-4 sm:space-y-6 overflow-hidden transition-all duration-300 ${
-                    expandedProjects.has(project.id) ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                    expandedProjects.has(project.id) ? 'max-h-none opacity-100' : 'max-h-0 opacity-0'
                   }`}>
                     <p className="text-gray-300 text-sm leading-relaxed border-l-2 border-[#F2B656] pl-4">
                       {project.description}
