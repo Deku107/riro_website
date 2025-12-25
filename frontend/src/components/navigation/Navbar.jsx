@@ -15,30 +15,40 @@ const Navbar = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Only show navbar when hero section is visible
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        setIsVisible(entry.isIntersecting);
-      },
-      { 
-        threshold: 0.5, // Show when 50% of hero is visible
-        rootMargin: '0px 0px -100px 0px' // Hide earlier when scrolling down
-      }
-    );
+    // Show navbar by default on all pages
+    setIsVisible(true);
+    
+    // Only control visibility with scroll on home page
+    if (location.pathname === '/') {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const [entry] = entries;
+          setIsVisible(entry.isIntersecting);
+        },
+        { 
+          threshold: 0.3, // Show when 30% of hero is visible
+          rootMargin: '0px 0px -50px 0px' // Hide when hero is mostly out of view
+        }
+      );
 
-    const heroSection = document.getElementById('home');
-    if (heroSection) {
-      observer.observe(heroSection);
+      // Set up observer after a small delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        const heroSection = document.getElementById('home');
+        if (heroSection) {
+          observer.observe(heroSection);
+        }
+      }, 100);
+
+      return () => {
+        clearTimeout(timer);
+        const heroSection = document.getElementById('home');
+        if (heroSection) {
+          observer.unobserve(heroSection);
+        }
+        observer.disconnect();
+      };
     }
-
-    return () => {
-      if (heroSection) {
-        observer.unobserve(heroSection);
-      }
-      observer.disconnect();
-    };
-  }, []);
+  }, [location.pathname]);
 
   const handleNavClick = (e, link) => {
     if (link.type === 'section' && link.sectionId) {

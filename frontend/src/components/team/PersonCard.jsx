@@ -26,7 +26,7 @@ export default function PersonCard({ member }) {
     <div className="flex flex-col md:flex-col lg:flex-row gap-4 lg:gap-6 p-3 lg:p-8 max-w-6xl mx-auto rounded-3xl transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl" style={{backgroundColor: '#f2f7f5'}}>
       {/* Profile Card */}
       <div className="flex-shrink-0 w-full md:w-full lg:w-64 max-w-xs sm:max-w-xs md:max-w-sm">
-        <div className="bg-gradient-to-br from-custom-400 to-custom-500 rounded-3xl shadow-lg h-60 sm:h-70 md:h-80 lg:h-80 min-h-[280px] lg:min-h-[320px] flex flex-col overflow-hidden p-2 transform transition-all duration-300 hover:shadow-xl">
+        <div className="bg-gradient-to-br from-custom-400 to-custom-500 rounded-3xl shadow-lg h-96 sm:h-[400px] md:h-[440px] lg:h-80 min-h-[384px] sm:min-h-[400px] md:min-h-[440px] lg:min-h-[320px] flex flex-col overflow-hidden p-2 transform transition-all duration-300 hover:shadow-xl">
           <div className="bg-white flex-1 p-1 rounded-2xl relative overflow-hidden group" style={{ minHeight: '180px' }}>
             <img 
               src={getCacheBustedUrl(member.image) || "src/assets/teampage/Anjali Verma.png"} 
@@ -54,7 +54,7 @@ export default function PersonCard({ member }) {
 
       {/* Description Card */}
       <div className="flex-1 max-w-xs sm:max-w-xs md:max-w-lg">
-        <div className="bg-gradient-to-br from-custom-400 to-custom-500 rounded-3xl p-3 lg:p-6 shadow-lg h-60 sm:h-70 md:h-80 lg:h-80 min-h-[280px] lg:min-h-[320px] flex flex-col transform transition-all duration-300 hover:shadow-xl w-full">
+        <div className="bg-gradient-to-br from-custom-400 to-custom-500 rounded-3xl p-3 lg:p-6 shadow-lg h-80 sm:h-90 md:h-96 lg:h-80 min-h-[320px] sm:min-h-[360px] md:min-h-[384px] lg:min-h-[320px] flex flex-col transform transition-all duration-300 hover:shadow-xl w-full">
           <div className="text-white space-y-2 lg:space-y-4 flex-1 overflow-hidden">
             <p className="leading-relaxed text-xs sm:text-sm lg:text-base transform transition-all duration-300 hover:translate-x-2 overflow-y-auto max-h-full break-words">
               {member.description}
