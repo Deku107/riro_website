@@ -267,25 +267,46 @@ const handleSaveMember = () => {
 
 
 
-  const handleDeleteMember = (memberId, type) => {
-    if (window.confirm('Are you sure you want to delete this member?')) {
-      if (type === 'core') {
-        setCoreTeamMembers(prev => prev.filter(m => m.id !== memberId));
-      }
-      if (type === 'director') {
-        setCollaboratorMembers(prev => ({
-          ...prev,
-          directors: prev.directors.filter(m => m.id !== memberId)
-        }));
-      }
-      if (type === 'dop') {
-        setCollaboratorMembers(prev => ({
-          ...prev,
-          dop: prev.dop.filter(m => m.id !== memberId)
-        }));
-      }
+  const handleDeleteMember = async (memberId, type) => {
+  if (!window.confirm('Are you sure you want to delete this member?')) return;
+
+  try {
+    
+    const res = await fetch(`http://localhost:8000/api/team/delete?id=${memberId}`, {
+        method: 'DELETE'
+    });
+
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      throw new Error(result.error || 'Delete failed');
     }
-  };
+
+    // ✅ Update frontend state ONLY after backend delete succeeds
+    if (type === 'core') {
+      setCoreTeamMembers(prev => prev.filter(m => m.id !== memberId));
+    }
+
+    if (type === 'director') {
+      setCollaboratorMembers(prev => ({
+        ...prev,
+        directors: prev.directors.filter(m => m.id !== memberId)
+      }));
+    }
+
+    if (type === 'dop') {
+      setCollaboratorMembers(prev => ({
+        ...prev,
+        dop: prev.dop.filter(m => m.id !== memberId)
+      }));
+    }
+
+  } catch (error) {
+    console.error('Delete error:', error);
+    alert('Failed to delete member. Please try again.');
+  }
+};
+
 
   const handleMoveMember = (memberId, type, direction) => {
     if (type === 'core') {
@@ -446,7 +467,7 @@ const handleSaveMember = () => {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteMember(member.id)}
+                        onClick={() => handleDeleteMember(member.id,'core')}
                         className="text-red-600 hover:text-red-800"
                       >
                         Delete

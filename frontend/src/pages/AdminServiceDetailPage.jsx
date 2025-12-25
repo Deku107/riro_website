@@ -55,7 +55,7 @@ const AdminServiceDetailPage = () => {
 
   const handleAddProject = () => {
     setEditingProject({
-      id: `p${serviceId}-${projects.length + 1}`,
+      id: Date.now(),
       title: '',
       director: '',
       year: new Date().getFullYear().toString(),
@@ -68,6 +68,7 @@ const AdminServiceDetailPage = () => {
     });
     setIsAddingNew(true);
   };
+
 
   const handleEditProject = (project) => {
     setEditingProject({ ...project });
@@ -165,16 +166,16 @@ const AdminServiceDetailPage = () => {
     setIsAddingNew(false);
   };
 
-  const handleDeleteProject = (projectId) => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
-      const updatedProjects = projects.filter(p => p.id !== projectId);
-      setProjects(updatedProjects);
-      console.log('Deleting project:', projectId);
-      
-      // Save to backend
-      saveToBackend(updatedProjects);
-    }
-  };
+ const handleDeleteProject = async (projectId) => {
+  if (!window.confirm('Delete this project?')) return;
+
+  await fetch(`http://localhost:8000/api/projects/delete?id=${projectId}`, {
+    method: 'DELETE'
+  });
+
+  setProjects(prev => prev.filter(p => p.id !== projectId));
+};
+
 
   const handleToggleProjectExpansion = (projectId) => {
     // This would be for preview purposes

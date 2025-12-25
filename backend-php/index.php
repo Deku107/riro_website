@@ -303,7 +303,18 @@ switch ($path) {
             echo json_encode(["error" => "Method not allowed"]);
         }
         break;
-    
+
+    case "/api/team/delete":
+        if ($method !== "DELETE") break;
+        require_once __DIR__ . "/db.php";
+        $id = $_GET['id'];
+
+        $stmt = $pdo->prepare("DELETE FROM team WHERE id = ?");
+        $stmt->execute([$id]);
+
+        echo json_encode(["success" => true]);
+        break;
+
     case "/api/projects":
         require_once __DIR__ . "/db.php"; // adjust path if needed
 
@@ -353,93 +364,80 @@ switch ($path) {
 
         
     case "/api/projects/save":
-
         if ($method !== "POST") {
             http_response_code(405);
             echo json_encode(["error" => "Method not allowed"]);
             break;
         }
 
-        header("Content-Type: application/json; charset=UTF-8");
-
         require_once __DIR__ . "/db.php";
 
-        $input = file_get_contents("php://input");
-        $data = json_decode($input, true);
-
-        if (!$data || !is_array($data)) {
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!$data) {
             http_response_code(400);
-            echo json_encode(["error" => "Invalid JSON data"]);
+            echo json_encode(["error" => "Invalid JSON"]);
             break;
         }
 
-        $allowedSections = ["s1", "s2", "s3", "s4", "s5"];
-
         $sql = "
-            UPDATE films SET
-                section = :section,
-                title = :title,
-                director = :director,
-                year = :year,
-                description = :description,
-                thumbnail_url = :thumbnail_url,
-                youtube_embed_url = :youtube_embed_url,
-                youtube_url = :youtube_url,
-                cast = :cast,
-                crew = :crew
-            WHERE id = :id
+            INSERT INTO films
+            (id, section, title, director, year, description,
+            thumbnail_url, youtube_embed_url, youtube_url, cast, crew)
+            VALUES
+            (:id, :section, :title, :director, :year, :description,
+            :thumbnail_url, :youtube_embed_url, :youtube_url, :cast, :crew)
+            ON DUPLICATE KEY UPDATE
+                section = VALUES(section),
+                title = VALUES(title),
+                director = VALUES(director),
+                year = VALUES(year),
+                description = VALUES(description),
+                thumbnail_url = VALUES(thumbnail_url),
+                youtube_embed_url = VALUES(youtube_embed_url),
+                youtube_url = VALUES(youtube_url),
+                cast = VALUES(cast),
+                crew = VALUES(crew)
         ";
 
         $stmt = $pdo->prepare($sql);
 
-        $updatedCount = 0;
-
-        try {
-            foreach ($data as $section => $films) {
-
-                if (!in_array($section, $allowedSections) || !is_array($films)) {
-                    continue;
-                }
-
-                foreach ($films as $film) {
-
-                    if (empty($film["id"])) {
-                        continue;
-                    }
-
-                    $stmt->execute([
-                        ":id" => $film["id"],
-                        ":section" => $section,
-                        ":title" => $film["title"] ?? "",
-                        ":director" => $film["director"] ?? "",
-                        ":year" => (int) ($film["year"] ?? 0),
-                        ":description" => $film["description"] ?? "",
-                        ":thumbnail_url" => $film["thumbnailUrl"] ?? "",
-                        ":youtube_embed_url" => $film["youtubeEmbedUrl"] ?? "",
-                        ":youtube_url" => $film["youtubeUrl"] ?? "",
-                        ":cast" => json_encode($film["cast"] ?? []),
-                        ":crew" => json_encode($film["crew"] ?? [])
-                    ]);
-
-                    if ($stmt->rowCount() > 0) {
-                        $updatedCount++;
-                    }
-                }
+        foreach ($data as $section => $films) {
+            foreach ($films as $film) {
+                $stmt->execute([
+                    ":id" => $film["id"],
+                    ":section" => $section,
+                    ":title" => $film["title"] ?? "",
+                    ":director" => $film["director"] ?? "",
+                    ":year" => (int)$film["year"],
+                    ":description" => $film["description"] ?? "",
+                    ":thumbnail_url" => $film["thumbnailUrl"] ?? "",
+                    ":youtube_embed_url" => $film["youtubeEmbedUrl"] ?? "",
+                    ":youtube_url" => $film["youtubeUrl"] ?? "",
+                    ":cast" => json_encode($film["cast"] ?? []),
+                    ":crew" => json_encode($film["crew"] ?? [])
+                ]);
             }
-
-            echo json_encode([
-                "success" => true,
-                "updated_records" => $updatedCount
-            ]);
-
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                "error" => "Failed to save projects",
-                "message" => $e->getMessage()
-            ]);
         }
 
+        echo json_encode(["success" => true]);
+        break;
+
+    case "/api/projects/delete":
+        if ($method !== "DELETE") break;
+
+        require_once __DIR__ . "/db.php";
+
+        $id = $_GET["id"] ?? null;
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(["error" => "Missing ID"]);
+            break;
+        }
+
+        $stmt = $pdo->prepare("DELETE FROM films WHERE id = ?");
+        $stmt->execute([$id]);
+
+        echo json_encode(["success" => true]);
         break;
 
         
