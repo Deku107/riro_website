@@ -1,8 +1,8 @@
 <?php
-$host = "localhost";
-$db   = "riro";
-$user = "root";
-$pass = "root";
+$host = "162.222.225.87";
+$db   = "rirotpyt_";
+$user = "riro";
+$pass = "Riro@2025@";
 
 $pdo = new PDO(
     "mysql:host=$host;dbname=$db;charset=utf8mb4",

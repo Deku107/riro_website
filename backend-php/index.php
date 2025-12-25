@@ -61,7 +61,7 @@ switch ($path) {
     case "/api/team":
         header("Content-Type: application/json");
 
-        $conn = new mysqli("localhost", "root", "root", "riro");
+        $conn = new mysqli("162.222.225.87", "riro", "Riro@2025@", "rirotpyt_");
 
         if ($conn->connect_error) {
             http_response_code(500);
