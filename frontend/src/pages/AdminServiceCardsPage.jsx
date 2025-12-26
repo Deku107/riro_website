@@ -21,7 +21,7 @@ const AdminServiceCardsPage = () => {
 
   useEffect(() => {
     // Load services data from backend
-    fetch('http://localhost:8000/api/services')
+    fetch('/api/services')
       .then(res => res.json())
       .then(data => {
         console.log('Services data from backend:', data);

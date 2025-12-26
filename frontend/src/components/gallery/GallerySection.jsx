@@ -16,7 +16,7 @@ const GallerySection = () => {
 
   useEffect(() => {
     setIsLoading(true);
-     fetch('http://localhost:8000/api/galleries')
+     fetch('/api/galleries')
       .then(res => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);

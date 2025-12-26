@@ -48,9 +48,9 @@ $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Cloudinary configuration (same as Node.js)
-$cloudName = 'dow6mrkpm';
-$apiKey = '186329281539576';
-$apiSecret = 'USUgBE_52uDSEDJFpTcyu3zmcAg';
+$cloudName = 'da7jzdkkt';
+$apiKey = '869831365175965';
+$apiSecret = '81ZNXaOxtKpqP3PuUYGFGuf1uA0';
 
 // Handle different endpoints exactly like Node.js
 switch ($path) {
@@ -305,15 +305,23 @@ switch ($path) {
         break;
 
     case "/api/team/delete":
-        if ($method !== "DELETE") break;
+        if ($method !== "POST") break;
+
         require_once __DIR__ . "/db.php";
-        $id = $_GET['id'];
+        $id = $_POST['id'] ?? $_GET['id'] ?? null;
+
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(["success" => false, "error" => "Missing ID"]);
+            exit;
+        }
 
         $stmt = $pdo->prepare("DELETE FROM team WHERE id = ?");
         $stmt->execute([$id]);
 
         echo json_encode(["success" => true]);
         break;
+
 
     case "/api/projects":
         require_once __DIR__ . "/db.php"; // adjust path if needed

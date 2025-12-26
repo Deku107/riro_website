@@ -29,7 +29,7 @@ const AdminServiceDetailPage = () => {
     setService(foundService);
     
     // Fetch projects data from backend
-    fetch('http://localhost:8000/api/projects')
+    fetch('/api/projects')
       .then(res => res.json())
       .then(data => {
         setProjects(data[serviceId] || []);
@@ -55,7 +55,6 @@ const AdminServiceDetailPage = () => {
 
   const handleAddProject = () => {
     setEditingProject({
-      id: Date.now(),
       title: '',
       director: '',
       year: new Date().getFullYear().toString(),
@@ -83,7 +82,7 @@ const AdminServiceDetailPage = () => {
       formData.append('image', file);
       
       try {
-        const response = await fetch('http://localhost:8000/api/team/upload', {
+        const response = await fetch('/api/team/upload', {
           method: 'POST',
           body: formData
         });
@@ -97,7 +96,7 @@ const AdminServiceDetailPage = () => {
           }));
           
           // Refresh projects data from backend after upload
-          fetch('http://localhost:8000/api/projects')
+          fetch('/api/projects')
             .then(res => res.json())
             .then(data => {
               setProjects(data[serviceId] || []);
@@ -117,7 +116,7 @@ const AdminServiceDetailPage = () => {
 
   const saveToBackend = (updatedProjects) => {
     // Get current projects data first
-    fetch('http://localhost:8000/api/projects')
+    fetch('/api/projects')
       .then(res => res.json())
       .then(allProjects => {
         const projectsData = {
@@ -125,7 +124,7 @@ const AdminServiceDetailPage = () => {
           [serviceId]: updatedProjects
         };
         
-        return fetch('http://localhost:8000/api/projects/save', {
+        return fetch('/api/projects/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(projectsData)
@@ -133,7 +132,7 @@ const AdminServiceDetailPage = () => {
       })
       .then(() => {
         // Refresh projects data from backend after save
-        return fetch('http://localhost:8000/api/projects');
+        return fetch('/api/projects');
       })
       .then(res => res.json())
       .then(data => {
@@ -169,9 +168,12 @@ const AdminServiceDetailPage = () => {
  const handleDeleteProject = async (projectId) => {
   if (!window.confirm('Delete this project?')) return;
 
-  await fetch(`http://localhost:8000/api/projects/delete?id=${projectId}`, {
-    method: 'DELETE'
-  });
+  await fetch('/api/projects/delete', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ id: projectId })
+});
+
 
   setProjects(prev => prev.filter(p => p.id !== projectId));
 };
