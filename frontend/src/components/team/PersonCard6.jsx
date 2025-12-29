@@ -32,9 +32,22 @@ export default function PersonCard6({ member }) {
             <div className="absolute inset-0 bg-gradient-to-t from-red-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
           
-          <div className="text-center text-white p-4 transform transition-all duration-300 hover:bg-white/10">
+          <div className="text-center text-white p-4 transform transition-all duration-300 hover:bg-white/10 space-y-1">
             <h3 className="text-lg lg:text-xl font-bold mb-1">{member.name}</h3>
             <p className="text-white text-sm">{member.role}</p>
+            {member.imdb_link && member.imdb_link.startsWith('http') && (
+              <a
+                href={member.imdb_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-yellow-300 hover:underline"
+              >
+                <span className="inline-flex items-center justify-center px-1.5 py-0.5 bg-yellow-400 text-black text-[10px] font-bold rounded-sm leading-none">
+                  IMDB
+                </span>
+                <span>View profile</span>
+              </a>
+            )}
           </div>
         </div>
       </div>

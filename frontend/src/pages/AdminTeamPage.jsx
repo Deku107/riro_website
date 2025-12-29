@@ -14,6 +14,7 @@ const AdminTeamPage = () => {
     directors: [],
     dop: []
   });
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
 
   const normalizeTeamData = (data) => {
   const coreTeam = [];
@@ -27,6 +28,7 @@ const AdminTeamPage = () => {
       id: Number(item.id),
       name: item.name || '',
       role: item.role || '',
+      imdb_link: item.imdb_link || '',
       description: item.description || '',
       imageAlt: item.imageAlt || item.name || '',
       bgColor: item.bgColor || 'bg-blue-100',
@@ -71,7 +73,7 @@ const AdminTeamPage = () => {
   const [isUploading, setIsUploading] = useState(false);
 
 useEffect(() => {
-  fetch('/api/team')
+  fetch('http://localhost:8000/api/team')
     .then(res => res.json())
     .then(rawData => {
       const { coreTeam, collaborators } = normalizeTeamData(rawData);
@@ -86,12 +88,12 @@ useEffect(() => {
 }, []);
 
 
-useEffect(() => {
-  if (!isLoading && !isUploading) {
-    saveToBackend(coreTeamMembers, collaboratorMembers);
-  }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [coreTeamMembers, collaboratorMembers, isUploading]);
+// useEffect(() => {
+//   if (!isLoading && !isUploading) {
+//     saveToBackend(coreTeamMembers, collaboratorMembers);
+//   }
+//   // eslint-disable-next-line react-hooks/exhaustive-deps
+// }, [coreTeamMembers, collaboratorMembers, isUploading]);
 
 
   const handleBackToDashboard = () => {
@@ -111,8 +113,10 @@ useEffect(() => {
 
   const handleAddNewMember = (type) => {
     const newMember = {
+      id: null,
       name: '',
       role: '',
+      imdb_link: '',
       description: '',
       imageAlt: '',
       image: '',
@@ -131,7 +135,7 @@ useEffect(() => {
       formData.append('image', file);
       
       try {
-        const response = await fetch('/api/team/upload', {
+        const response = await fetch('http://localhost:8000/api/team/upload', {
           method: 'POST',
           body: formData
         });
@@ -150,7 +154,7 @@ useEffect(() => {
           setImagePosition({ x: 50, y: 50 });
           
           // Refresh team data from backend after upload
-          fetch('/api/team')
+          fetch('http://localhost:8000/api/team')
             .then(res => res.json())
             .then(rawData => {
               const { coreTeam, collaborators } = normalizeTeamData(rawData);
@@ -196,117 +200,114 @@ useEffect(() => {
     image_position_y: String(m.imagePosition?.y ?? 50)
   }));
 
-  fetch('/api/team/save', {
+  return fetch('http://localhost:8000/api/team/save', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(flattened)
   });
 };
 
-
-
 const handleSaveMember = () => {
   if (!editingMember) return;
+  // Prepare new arrays so we can both update state and persist
+  let newCore = coreTeamMembers;
+  let newCollaborators = collaboratorMembers;
 
   if (editingMember.type === 'core') {
     const existingMember = coreTeamMembers.find(m => m.id === editingMember.id);
     if (existingMember) {
-      // Update existing member
-      setCoreTeamMembers(prev =>
-        prev.map(m => m.id === editingMember.id ? editingMember : m)
+      newCore = coreTeamMembers.map(m =>
+        m.id === editingMember.id ? editingMember : m
       );
     } else {
-      // Add new member
-      setCoreTeamMembers(prev => [...prev, editingMember]);
+      newCore = [...coreTeamMembers, editingMember];
     }
   }
 
   if (editingMember.type === 'director') {
     const existingMember = collaboratorMembers.directors.find(m => m.id === editingMember.id);
     if (existingMember) {
-      // Update existing director
-      setCollaboratorMembers(prev => ({
-        ...prev,
-        directors: prev.directors.map(m =>
+      newCollaborators = {
+        ...collaboratorMembers,
+        directors: collaboratorMembers.directors.map(m =>
           m.id === editingMember.id ? editingMember : m
         )
-      }));
+      };
     } else {
-      // Add new director
-      setCollaboratorMembers(prev => ({
-        ...prev,
-        directors: [...prev.directors, editingMember]
-      }));
+      newCollaborators = {
+        ...collaboratorMembers,
+        directors: [...collaboratorMembers.directors, editingMember]
+      };
     }
   }
 
   if (editingMember.type === 'dop') {
     const existingMember = collaboratorMembers.dop.find(m => m.id === editingMember.id);
     if (existingMember) {
-      // Update existing DOP
-      setCollaboratorMembers(prev => ({
-        ...prev,
-        dop: prev.dop.map(m =>
+      newCollaborators = {
+        ...collaboratorMembers,
+        dop: collaboratorMembers.dop.map(m =>
           m.id === editingMember.id ? editingMember : m
         )
-      }));
+      };
     } else {
-      // Add new DOP
-      setCollaboratorMembers(prev => ({
-        ...prev,
-        dop: [...prev.dop, editingMember]
-      }));
+      newCollaborators = {
+        ...collaboratorMembers,
+        dop: [...collaboratorMembers.dop, editingMember]
+      };
     }
   }
+
+  // Update state
+  setCoreTeamMembers(newCore);
+  setCollaboratorMembers(newCollaborators);
+
+  // Persist changes (add/edit) immediately
+  saveToBackend(newCore, newCollaborators);
 
   setEditingMember(null);
 };
-
-
-
+  
   const handleDeleteMember = async (memberId, type) => {
-  if (!window.confirm('Are you sure you want to delete this member?')) return;
+    if (!window.confirm('Are you sure you want to delete this member?')) return;
 
-  try {
-    
-    const res = await fetch('/api/team/delete',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ id: memberId })
+    try {
+      const res = await fetch('http://localhost:8000/api/team/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ id: memberId })
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        throw new Error(result.error || 'Delete failed');
+      }
+
+      // ✅ Update frontend state ONLY after backend delete succeeds
+      if (type === 'core') {
+        setCoreTeamMembers(prev => prev.filter(m => m.id !== memberId));
+      }
+
+      if (type === 'director') {
+        setCollaboratorMembers(prev => ({
+          ...prev,
+          directors: prev.directors.filter(m => m.id !== memberId)
+        }));
+      }
+
+      if (type === 'dop') {
+        setCollaboratorMembers(prev => ({
+          ...prev,
+          dop: prev.dop.filter(m => m.id !== memberId)
+        }));
+      }
+
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Failed to delete member. Please try again.');
     }
-);
-
-    const result = await res.json();
-
-    if (!res.ok || !result.success) {
-      throw new Error(result.error || 'Delete failed');
-    }
-
-    // ✅ Update frontend state ONLY after backend delete succeeds
-    if (type === 'core') {
-      setCoreTeamMembers(prev => prev.filter(m => m.id !== memberId));
-    }
-
-    if (type === 'director') {
-      setCollaboratorMembers(prev => ({
-        ...prev,
-        directors: prev.directors.filter(m => m.id !== memberId)
-      }));
-    }
-
-    if (type === 'dop') {
-      setCollaboratorMembers(prev => ({
-        ...prev,
-        dop: prev.dop.filter(m => m.id !== memberId)
-      }));
-    }
-
-  } catch (error) {
-    console.error('Delete error:', error);
-    alert('Failed to delete member. Please try again.');
-  }
-};
+  };
 
 
   const handleMoveMember = (memberId, type, direction) => {
@@ -431,12 +432,28 @@ const handleSaveMember = () => {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-gray-900">Core Team Members</h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={async () => {
+                    setIsSavingOrder(true);
+                    try {
+                      await saveToBackend(coreTeamMembers, collaboratorMembers);
+                    } finally {
+                      setIsSavingOrder(false);
+                    }
+                  }}
+                  disabled={isSavingOrder}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isSavingOrder ? 'Saving…' : 'Save Order'}
+                </button>
               <button 
                 onClick={() => handleAddNewMember('core')}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
               >
                 Add New Member
               </button>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -489,12 +506,28 @@ const handleSaveMember = () => {
             <div className="mb-8">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold text-gray-900">Directors</h2>
-                <button 
-                  onClick={() => handleAddNewMember('director')}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                >
-                  Add Director
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      setIsSavingOrder(true);
+                      try {
+                        await saveToBackend(coreTeamMembers, collaboratorMembers);
+                      } finally {
+                        setIsSavingOrder(false);
+                      }
+                    }}
+                    disabled={isSavingOrder}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isSavingOrder ? 'Saving…' : 'Save Order'}
+                  </button>
+                  <button 
+                    onClick={() => handleAddNewMember('director')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                  >
+                    Add Director
+                  </button>
+                </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -622,7 +655,25 @@ const handleSaveMember = () => {
                 <input
                   type="text"
                   value={editingMember.role}
-                  onChange={(e) => setEditingMember({...editingMember, role: e.target.value})}
+                  onChange={(e) => setEditingMember({
+                    ...editingMember,
+                    role: e.target.value
+                  })}
+                  placeholder={'e.g. Director, Producer'}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">IMDB link (optional)</label>
+                <input
+                  type="text"
+                  value={editingMember.imdb_link || ''}
+                  onChange={(e) => setEditingMember({
+                    ...editingMember,
+                    imdb_link: e.target.value
+                  })}
+                  placeholder={'https://www.imdb.com/name/...'}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -637,94 +688,96 @@ const handleSaveMember = () => {
                 />
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Profile Image</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={isUploading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
-                />
-                {isUploading && (
-                  <div className="mt-2 text-sm text-blue-600">Uploading image...</div>
-                )}
-                {editingMember.image && (
-                  <div className="mt-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Image Adjustment</label>
-                    <div className="flex gap-4">
-                      {/* PersonCard Frame Preview */}
-                      <div className="flex-shrink-0">
-                        <div className="text-xs text-gray-600 mb-1 text-center">Card Preview</div>
-                        <div className="bg-gradient-to-br from-custom-400 to-custom-500 rounded-3xl shadow-lg p-2" style={{ width: '120px', height: '150px' }}>
-                          <div className="bg-white rounded-2xl relative overflow-hidden" style={{ height: '110px' }}>
-                            <img 
-                              src={editingMember.image} 
-                              alt="Card Preview" 
-                              className="w-full h-full object-cover"
-                              style={{
-                                transform: `scale(${editingMember.imageZoom || 1}) translate(-${(editingMember.imagePosition?.x || 50) - 50}%, -${(editingMember.imagePosition?.y || 50) - 50}%)`,
-                                transformOrigin: 'center'
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Controls */}
-                      <div className="flex-1 space-y-3">
-                        {/* Zoom Control */}
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Zoom</label>
-                          <input
-                            type="range"
-                            min="0.5"
-                            max="2"
-                            step="0.1"
-                            value={editingMember.imageZoom || 1}
-                            onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
-                            className="w-full"
-                          />
-                          <div className="flex justify-between text-xs text-gray-500">
-                            <span>0.5x</span>
-                            <span>{(editingMember.imageZoom || 1).toFixed(1)}x</span>
-                            <span>2x</span>
+              {editingMember.type === 'core' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Profile Image</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+                  />
+                  {isUploading && (
+                    <div className="mt-2 text-sm text-blue-600">Uploading image...</div>
+                  )}
+                  {editingMember.image && (
+                    <div className="mt-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Image Adjustment</label>
+                      <div className="flex gap-4">
+                        {/* PersonCard Frame Preview */}
+                        <div className="flex-shrink-0">
+                          <div className="text-xs text-gray-600 mb-1 text-center">Card Preview</div>
+                          <div className="bg-gradient-to-br from-custom-400 to-custom-500 rounded-3xl shadow-lg p-2" style={{ width: '120px', height: '150px' }}>
+                            <div className="bg-white rounded-2xl relative overflow-hidden" style={{ height: '110px' }}>
+                              <img 
+                                src={editingMember.image} 
+                                alt="Card Preview" 
+                                className="w-full h-full object-cover"
+                                style={{
+                                  transform: `scale(${editingMember.imageZoom || 1}) translate(-${(editingMember.imagePosition?.x || 50) - 50}%, -${(editingMember.imagePosition?.y || 50) - 50}%)`,
+                                  transformOrigin: 'center'
+                                }}
+                              />
+                            </div>
                           </div>
                         </div>
                         
-                        {/* Position Controls */}
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Position</label>
-                          <div className="space-y-2">
-                            <div>
-                              <label className="block text-xs text-gray-600 mb-1">Horizontal</label>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={editingMember.imagePosition?.x || 50}
-                                onChange={(e) => handlePositionChange('x', parseInt(e.target.value))}
-                                className="w-full"
-                              />
+                        {/* Controls */}
+                        <div className="flex-1 space-y-3">
+                          {/* Zoom Control */}
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Zoom</label>
+                            <input
+                              type="range"
+                              min="0.5"
+                              max="2"
+                              step="0.1"
+                              value={editingMember.imageZoom || 1}
+                              onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
+                              className="w-full"
+                            />
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>0.5x</span>
+                              <span>{(editingMember.imageZoom || 1).toFixed(1)}x</span>
+                              <span>2x</span>
                             </div>
-                            <div>
-                              <label className="block text-xs text-gray-600 mb-1">Vertical</label>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={editingMember.imagePosition?.y || 50}
-                                onChange={(e) => handlePositionChange('y', parseInt(e.target.value))}
-                                className="w-full"
-                              />
+                          </div>
+                          
+                          {/* Position Controls */}
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Position</label>
+                            <div className="space-y-2">
+                              <div>
+                                <label className="block text-xs text-gray-600 mb-1">Horizontal</label>
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="100"
+                                  value={editingMember.imagePosition?.x || 50}
+                                  onChange={(e) => handlePositionChange('x', parseInt(e.target.value))}
+                                  className="w-full"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-600 mb-1">Vertical</label>
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="100"
+                                  value={editingMember.imagePosition?.y || 50}
+                                  onChange={(e) => handlePositionChange('y', parseInt(e.target.value))}
+                                  className="w-full"
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end space-x-3 mt-6">

@@ -8,7 +8,8 @@ const GallerySection = () => {
   const [galleries, setGalleries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const cld = new Cloudinary({ cloud: { cloudName: 'dow6mrkpm' } });
+  // Use the same Cloudinary cloud name as configured on the backend (index.php)
+  const cld = new Cloudinary({ cloud: { cloudName: 'da7jzdkkt' } });
 
   const getCloudinaryImage = (publicId) => {
     return cld.image(publicId).format('auto').quality('auto');
@@ -16,7 +17,7 @@ const GallerySection = () => {
 
   useEffect(() => {
     setIsLoading(true);
-     fetch('/api/galleries')
+     fetch('http://localhost:8000/api/galleries')
       .then(res => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);

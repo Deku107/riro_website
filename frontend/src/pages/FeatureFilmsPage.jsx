@@ -13,7 +13,7 @@ const FeatureFilmsPage = () => {
 
   useEffect(() => {
     // Fetch projects data from backend
-    fetch('/api/projects')
+    fetch('http://localhost:8000/api/projects')
       .then(res => res.json())
       .then(data => {
         setProjects(data['s3'] || []); // s3 is the service ID for feature films

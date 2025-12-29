@@ -7,11 +7,31 @@ import PersonCard5 from './PersonCard5';
 import PersonCard6 from './PersonCard6';
 
 const CollaboratorCard = ({ collaborator }) => {
+  const imdbLink = collaborator.imdb_link && collaborator.imdb_link.startsWith('http')
+    ? collaborator.imdb_link
+    : null;
+
   return (
     <div className="bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow duration-300">
       <h4 className="text-lg font-semibold mb-2">{collaborator.name}</h4>
-      <p className="text-gray-600 text-sm mb-2">{collaborator.role}</p>
-      <p className="text-gray-700 text-sm">{collaborator.description}</p>
+      {imdbLink ? (
+        <a
+          href={imdbLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-blue-600 text-sm mb-2 hover:underline"
+        >
+          <span className="inline-flex items-center justify-center px-1.5 py-0.5 bg-yellow-400 text-black text-[10px] font-bold rounded-sm leading-none">
+            IMDB
+          </span>
+          <span>View profile</span>
+        </a>
+      ) : (
+        <p className="text-gray-600 text-sm mb-2">{collaborator.role}</p>
+      )}
+      <p className="text-gray-700 text-sm break-words leading-relaxed">
+        {collaborator.description}
+      </p>
     </div>
   );
 };
@@ -24,7 +44,7 @@ const CardSection = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/team')
+    fetch('http://localhost:8000/api/team')
       .then(res => res.json())
       .then(data => {
         setTeamData(data);

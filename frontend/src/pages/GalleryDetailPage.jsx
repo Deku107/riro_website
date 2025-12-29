@@ -11,13 +11,13 @@ const GalleryDetailPage = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const cld = new Cloudinary({ cloud: { cloudName: 'dow6mrkpm' } });
+  const cld = new Cloudinary({ cloud: { cloudName: 'da7jzdkkt' } });
   const getCloudinaryImage = (publicId) =>
     cld.image(publicId).format('auto').quality('auto');
 
   useEffect(() => {
     setIsLoading(true);
-    fetch(`/api/gallery/${galleryId}`)
+    fetch(`http://localhost:8000/api/gallery/${galleryId}`)
       .then((res) => res.json())
       .then((data) => {
         if (!data || !data.length) {

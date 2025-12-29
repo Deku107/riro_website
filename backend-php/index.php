@@ -69,9 +69,9 @@ switch ($path) {
             break;
         }
 
-        // Query team data
-        $sql = "SELECT * FROM team";
-        $result = $conn->query($sql);
+        // Query team data ordered by type + sort_order
+$sql = "SELECT * FROM team ORDER BY type, sort_order ASC, id ASC";
+$result = $conn->query($sql);
 
         if ($result && $result->num_rows > 0) {
             $team = [];
@@ -109,42 +109,63 @@ switch ($path) {
             }
 
             $pdo->beginTransaction();
+            // Per-type sort order counters
+$coreOrder      = 0;
+$directorsOrder = 0;
+$dopOrder       = 0;
 
-            $stmt = $pdo->prepare("
-                INSERT INTO team
-                (id, name, role, description, imageAlt, bgColor, type, image,
-                imageZoom, image_position_x, image_position_y)
-                VALUES
-                (:id, :name, :role, :description, :imageAlt, :bgColor, :type, :image,
-                :imageZoom, :image_position_x, :image_position_y)
-                ON DUPLICATE KEY UPDATE
-                    name = VALUES(name),
-                    role = VALUES(role),
-                    description = VALUES(description),
-                    imageAlt = VALUES(imageAlt),
-                    bgColor = VALUES(bgColor),
-                    type = VALUES(type),
-                    image = VALUES(image),
-                    imageZoom = VALUES(imageZoom),
-                    image_position_x = VALUES(image_position_x),
-                    image_position_y = VALUES(image_position_y)
-            ");
+       $stmt = $pdo->prepare("
+    INSERT INTO team
+    (id, name, role, imdb_link, description, imageAlt, bgColor, type, image,
+     imageZoom, image_position_x, image_position_y, sort_order)
+    VALUES
+    (:id, :name, :role, :imdb_link, :description, :imageAlt, :bgColor, :type, :image,
+     :imageZoom, :image_position_x, :image_position_y, :sort_order)
+    ON DUPLICATE KEY UPDATE
+        name = VALUES(name),
+        role = VALUES(role),
+        imdb_link = VALUES(imdb_link),
+        description = VALUES(description),
+        imageAlt = VALUES(imageAlt),
+        bgColor = VALUES(bgColor),
+        type = VALUES(type),
+        image = VALUES(image),
+        imageZoom = VALUES(imageZoom),
+        image_position_x = VALUES(image_position_x),
+        image_position_y = VALUES(image_position_y),
+        sort_order = VALUES(sort_order)
+");
 
             foreach ($data as $member) {
-                $stmt->execute([
-                    ":id" => $member["id"],
-                    ":name" => $member["name"] ?? null,
-                    ":role" => $member["role"] ?? null,
-                    ":description" => $member["description"] ?? null,
-                    ":imageAlt" => $member["imageAlt"] ?? null,
-                    ":bgColor" => $member["bgColor"] ?? null,
-                    ":type" => $member["type"] ?? null,
-                    ":image" => $member["image"] ?? null,
-                    ":imageZoom" => $member["imageZoom"] ?? null,
-                    ":image_position_x" => $member["image_position_x"] ?? null,
-                    ":image_position_y" => $member["image_position_y"] ?? null
-                ]);
-            }
+    $type = $member["type"] ?? "core";
+
+    // Decide sort order per type
+    if ($type === "core") {
+        $sortOrder = $coreOrder++;
+    } elseif ($type === "directors") {
+        $sortOrder = $directorsOrder++;
+    } elseif ($type === "dop") {
+        $sortOrder = $dopOrder++;
+    } else {
+        $sortOrder = 0; // fallback
+    }
+
+    $stmt->execute([
+        ":id" => $member["id"],
+        ":name" => $member["name"] ?? null,
+        ":role" => $member["role"] ?? null,
+        ":imdb_link" => $member["imdb_link"] ?? null,
+        ":description" => $member["description"] ?? null,
+        ":imageAlt" => $member["imageAlt"] ?? null,
+        ":bgColor" => $member["bgColor"] ?? null,
+        ":type" => $type,
+        ":image" => $member["image"] ?? null,
+        ":imageZoom" => $member["imageZoom"] ?? null,
+        ":image_position_x" => $member["image_position_x"] ?? null,
+        ":image_position_y" => $member["image_position_y"] ?? null,
+        ":sort_order" => $sortOrder,
+    ]);
+}
 
             $pdo->commit();
 

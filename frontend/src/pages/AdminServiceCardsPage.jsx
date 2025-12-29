@@ -21,7 +21,7 @@ const AdminServiceCardsPage = () => {
 
   useEffect(() => {
     // Load services data from backend
-    fetch('/api/services')
+    fetch('http://localhost:8000/api/services')
       .then(res => res.json())
       .then(data => {
         console.log('Services data from backend:', data);
@@ -46,7 +46,7 @@ const AdminServiceCardsPage = () => {
   }, [serviceCards, isUploading]);
 
   const saveToBackend = () => {
-    fetch('/api/services/save', {
+    fetch('http://localhost:8000/api/services/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -95,7 +95,7 @@ const AdminServiceCardsPage = () => {
       formData.append('image', file);
       
       try {
-        const response = await fetch('/api/team/upload', {
+        const response = await fetch('http://localhost:8000/api/team/upload', {
           method: 'POST',
           body: formData
         });
@@ -109,7 +109,7 @@ const AdminServiceCardsPage = () => {
           }));
           
           // Refresh services data from backend after upload
-          fetch('/api/services')
+          fetch('http://localhost:8000/api/services')
             .then(res => res.json())
             .then(data => {
               if (data.services) {
