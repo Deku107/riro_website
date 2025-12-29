@@ -17,7 +17,7 @@ const GalleryDetailPage = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    fetch(`http://localhost:8000/api/gallery/${galleryId}`)
+    fetch(`/api/gallery/${galleryId}`)
       .then((res) => res.json())
       .then((data) => {
         if (!data || !data.length) {

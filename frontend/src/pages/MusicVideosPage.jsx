@@ -13,7 +13,7 @@ const MusicVideosPage = () => {
 
   useEffect(() => {
     // Fetch projects data from backend
-    fetch('http://localhost:8000/api/projects')
+    fetch('/api/projects')
       .then(res => res.json())
       .then(data => {
         setProjects(data['s5'] || []); // s5 is the service ID for music videos
